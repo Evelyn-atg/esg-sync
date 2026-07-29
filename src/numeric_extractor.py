@@ -45,9 +45,12 @@ _YEAR_ONLY_PATTERN = re.compile(
 )
 
 # Chandra HF backend does true batched inference (one vision-encoder forward +
-# one batched LLM decode per batch). 8 is a safe default for H100 80GB; tune up
-# to 16-32 if ``nvidia-smi`` shows headroom, down if you hit OOM.
-OCR_BATCH_SIZE = 8
+# one batched LLM decode per batch).
+# Default 8 is safe for single-process H100 80GB; tune up to 16-32 if
+# nvidia-smi shows headroom, down if you hit OOM.
+# For multi-stream mode (multiple Python processes sharing one GPU), set
+# OCR_BATCH_SIZE env var to a smaller value (e.g. 2 for 5 streams).
+OCR_BATCH_SIZE = int(os.environ.get("OCR_BATCH_SIZE", "8"))
 
 
 def _current_gpu_id() -> str:
