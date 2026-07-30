@@ -329,6 +329,16 @@ class NumericExtractor:
             f"need to OCR {len(pages_to_ocr)} more: {pages_to_ocr}"
         )
 
+        # Check if this PDF is blacklisted
+        from src.utils import PDFBlacklist
+        pdf_blacklist = PDFBlacklist()
+        if pdf_blacklist.is_blacklisted(pdf_name):
+            logger.warning(
+                f"[{pdf_name}] PDF is blacklisted (previously caused GPU crash). "
+                f"Skipping OCR and using text fallback only."
+            )
+            return ocr_results
+
         # Need the PDF file to render page images for OCR
         if pdf_path is None or not pdf_path.exists():
             pdf_path = Config.PDF_INPUT_DIR / f"{pdf_name}.pdf"
@@ -403,7 +413,7 @@ class NumericExtractor:
                 timing: Dict[str, float] = {}
                 sampler = _GpuUtilSampler().start()
                 try:
-                    batch_results = ocr_tester._run_page_ocr_batch(batch_images, timing=timing)
+                    batch_results = ocr_tester._run_page_ocr_batch(batch_images, timing=timing, pdf_name=pdf_name)
                 except GPUFatalError as e:
                     # GPU fatal error - stop sampler, log critical error, and exit immediately
                     sampler.stop()

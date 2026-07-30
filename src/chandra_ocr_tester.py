@@ -423,6 +423,7 @@ class ChandraOCRTester:
         self,
         image_paths: List[Path],
         timing: Optional[Dict[str, float]] = None,
+        pdf_name: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Batch OCR entry point. Chandra backend does a single batched forward
         pass over all images (~3-5x throughput vs per-image calls); datalab
@@ -437,17 +438,21 @@ class ChandraOCRTester:
             (milliseconds): ``img_load_ms``, ``generate_wall_ms``,
             ``generate_gpu_ms``. Pass a fresh ``{}`` from the caller and read
             it back after the call returns.
+        pdf_name:
+            Optional PDF name for blacklist tracking. If a GPU error occurs
+            during processing, this PDF will be added to the blacklist.
 
         Returns one result dict per input image, in the same order.
         """
         if self.ocr_backend == "datalab_api":
             return [self._run_page_ocr_datalab(p) for p in image_paths]
-        return self._run_page_ocr_batch_chandra_local(image_paths, timing=timing)
+        return self._run_page_ocr_batch_chandra_local(image_paths, timing=timing, pdf_name=pdf_name)
 
     def _run_page_ocr_batch_chandra_local(
         self,
         image_paths: List[Path],
         timing: Optional[Dict[str, float]] = None,
+        pdf_name: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Run Chandra OCR on a batch of images in a single forward pass.
 
@@ -463,11 +468,12 @@ class ChandraOCRTester:
                                      inside generate (tokenize / pad / decode).
 
         Raises GPUFatalError if CUDA error is detected, triggering immediate
-        worker exit and GPU health marking.
+        worker exit and GPU health marking. If pdf_name is provided, the PDF
+        will be added to the blacklist.
         """
         import time as _time
         from chandra.model.schema import BatchInputItem
-        from src.utils import GPUHealthTracker, GPUFatalError
+        from src.utils import GPUHealthTracker, GPUFatalError, PDFBlacklist
         import torch
 
         manager = self._ensure_chandra_manager()
@@ -494,6 +500,7 @@ class ChandraOCRTester:
 
         # --- CUDA error handling ---
         gpu_health = GPUHealthTracker()
+        pdf_blacklist = PDFBlacklist()
         try:
             outputs = manager.generate(items)
         except RuntimeError as e:
@@ -510,6 +517,11 @@ class ChandraOCRTester:
 
                 # Mark GPU as unhealthy
                 gpu_health.mark_gpu_unhealthy(gpu_id, error_msg)
+
+                # Add PDF to blacklist if we know which one caused the crash
+                if pdf_name:
+                    pdf_blacklist.add_to_blacklist(pdf_name, f"CUDA error on GPU {gpu_id}: {error_msg}")
+                    logger.error(f"PDF {pdf_name} added to blacklist")
 
                 # Raise fatal error to trigger immediate worker exit
                 raise GPUFatalError(
@@ -535,6 +547,12 @@ class ChandraOCRTester:
                     gpu_id = torch.cuda.current_device()
                     logger.error(f"Deferred CUDA error detected on GPU {gpu_id}: {error_msg}")
                     gpu_health.mark_gpu_unhealthy(gpu_id, error_msg)
+
+                    # Add PDF to blacklist if we know which one caused the crash
+                    if pdf_name:
+                        pdf_blacklist.add_to_blacklist(pdf_name, f"Deferred CUDA error on GPU {gpu_id}: {error_msg}")
+                        logger.error(f"PDF {pdf_name} added to blacklist")
+
                     raise GPUFatalError(
                         f"Deferred CUDA error on GPU {gpu_id}: {error_msg}. "
                         f"GPU marked as unhealthy. Worker exiting immediately."
