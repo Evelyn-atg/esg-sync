@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p H100
+#SBATCH -p A800
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
