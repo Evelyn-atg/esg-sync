@@ -461,9 +461,14 @@ class ChandraOCRTester:
           * ``generate_gpu_ms``    — CUDA-event measured GPU kernel time for
                                      the same call. Diff vs wall = CPU overhead
                                      inside generate (tokenize / pad / decode).
+
+        Raises GPUFatalError if CUDA error is detected, triggering immediate
+        worker exit and GPU health marking.
         """
         import time as _time
         from chandra.model.schema import BatchInputItem
+        from src.utils import GPUHealthTracker, GPUFatalError
+        import torch
 
         manager = self._ensure_chandra_manager()
 
@@ -479,7 +484,6 @@ class ChandraOCRTester:
         # --- generate: measure wall + GPU kernel time ---
         # CUDA events give pure kernel time; diff vs wall clock is CPU
         # overhead (apply_chat_template / tokenize / pad / batch_decode).
-        import torch
         use_cuda = torch.cuda.is_available()
         if use_cuda:
             start_event = torch.cuda.Event(enable_timing=True)
@@ -488,13 +492,55 @@ class ChandraOCRTester:
             start_event.record()
         t_gen0 = _time.perf_counter()
 
-        outputs = manager.generate(items)
+        # --- CUDA error handling ---
+        gpu_health = GPUHealthTracker()
+        try:
+            outputs = manager.generate(items)
+        except RuntimeError as e:
+            error_msg = str(e)
+            # Check if this is a CUDA error
+            if "CUDA" in error_msg or "cuda" in error_msg:
+                # Get current GPU ID
+                try:
+                    gpu_id = torch.cuda.current_device()
+                except Exception:
+                    gpu_id = 0
+
+                logger.error(f"Fatal CUDA error detected on GPU {gpu_id}: {error_msg}")
+
+                # Mark GPU as unhealthy
+                gpu_health.mark_gpu_unhealthy(gpu_id, error_msg)
+
+                # Raise fatal error to trigger immediate worker exit
+                raise GPUFatalError(
+                    f"CUDA error on GPU {gpu_id}: {error_msg}. "
+                    f"GPU marked as unhealthy. Worker exiting immediately."
+                ) from e
+            else:
+                # Not a CUDA error, re-raise
+                raise
 
         generate_wall_ms = (_time.perf_counter() - t_gen0) * 1000
         if use_cuda:
             end_event.record()
             end_event.synchronize()
             generate_gpu_ms = start_event.elapsed_time(end_event)
+
+            # Check for CUDA errors that didn't raise exceptions
+            try:
+                torch.cuda.synchronize()
+            except RuntimeError as e:
+                error_msg = str(e)
+                if "CUDA" in error_msg or "cuda" in error_msg:
+                    gpu_id = torch.cuda.current_device()
+                    logger.error(f"Deferred CUDA error detected on GPU {gpu_id}: {error_msg}")
+                    gpu_health.mark_gpu_unhealthy(gpu_id, error_msg)
+                    raise GPUFatalError(
+                        f"Deferred CUDA error on GPU {gpu_id}: {error_msg}. "
+                        f"GPU marked as unhealthy. Worker exiting immediately."
+                    ) from e
+                else:
+                    raise
         else:
             generate_gpu_ms = generate_wall_ms
 

@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 from src.config import Config
-from src.utils import setup_logger, ensure_directory_exists, save_json
+from src.utils import setup_logger, ensure_directory_exists, save_json, GPUFatalError
 
 logger = setup_logger(__name__, "logs/numeric_extractor.log")
 
@@ -404,6 +404,15 @@ class NumericExtractor:
                 sampler = _GpuUtilSampler().start()
                 try:
                     batch_results = ocr_tester._run_page_ocr_batch(batch_images, timing=timing)
+                except GPUFatalError as e:
+                    # GPU fatal error - stop sampler, log critical error, and exit immediately
+                    sampler.stop()
+                    logger.critical(
+                        f"[esg-ocr][gpu={gpu_id}][{pdf_name}] FATAL GPU ERROR in batch {batch_idx}/{total_batches}: {e}"
+                    )
+                    logger.critical("Worker exiting immediately. GPU marked as unhealthy.")
+                    # Re-raise to trigger immediate worker exit
+                    raise
                 except Exception as e:
                     sampler.stop()
                     logger.warning(
