@@ -590,7 +590,7 @@ index, temperature.gpu, utilization.gpu [%], memory.used [MiB]
 0, [GPU requires reset], [GPU requires reset], 0 MiB
 ```
 
-**结论**：GPU 0 需要硬件重置，可能是硬件故障。
+**结论**：GPU 0 需要硬件重置（reset）。已发邮件通知 IT 团队，但 IT 尚未回复，故障具体原因待定。
 
 ### 对比：GPU 1 正常运行
 
@@ -615,7 +615,7 @@ index, temperature.gpu, utilization.gpu [%], memory.used [MiB]
 
 #### 可能的原因
 
-1. **硬件故障**（最可能）
+1. **硬件故障**
    - GPU 0 显存错误
    - 计算单元故障
    - 散热问题（虽然温度显示正常）
