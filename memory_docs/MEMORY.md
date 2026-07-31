@@ -1,0 +1,20 @@
+- [Chandra GPU cluster setup](chandra-gpu-cluster-setup.md) — running Chandra OCR locally on the Sugon HPC cluster instead of the Datalab API; cluster access, glibc-2.17 torch constraint, working env + model download
+- [Cluster dashscope egress blocked](esg-cluster-dashscope-egress-blocked.md) — Sugon cluster can't upload large request bodies to dashscope/Qwen API (write timeouts); breaks VLM normalization, drove the localization plan
+- [Qwen localization progress](esg-qwen-localization-progress.md) — local Qwen2.5-VL replaced dashscope API; DONE & validated vs GT (OCR/model good, exact values); remaining = 4 downstream extraction-accuracy gaps (scope synonyms, merged-cell sum, multi-year columns) + the gt_compare.py harness
+- [Sugon WebShell paste gotchas](sugon-webshell-paste-gotchas.md) — workarounds for the WebShell mangling long/multi-line pastes; how to create files, transfer via git, activate env
+- [Sugon Slurm CPU starvation](sugon-slurm-cpu-starvation.md) — jobs default to 1 CPU/6GB, starving GPU (19% util); must request --cpus-per-task; fixed to 100% util
+- [ESG qualitative scoring task](esg-qualitative-scoring-task.md) — scoring 53 qualitative indicators for 舜宇光学/卓越商企 in the 3-company GT workbook, CMON is the done template; rubric is in the Methodology docx; blocked on locating the 2 PDFs
+- [Pipeline refactor: BM25 → LLM matching](esg-pipeline-refactor-bm25-to-llm.md) — replaced BM25 with numeric_extraction (Chandra OCR) + LLM variable matching (dashscope API); new pipeline architecture, esg_indicator_keywords.json, deployment commands
+- [FAST-LIVO2 learning](fast-livo2-learning.md) — teaching user FAST-LIVO2 (LIV SLAM) from beginner level in Chinese; their level, goal, agreed roadmap
+- [ESG evidence viewer](esg-evidence-viewer.md) — browser tool (left Excel / right PDF) to cross-check GT, click a row → jump to evidence page + red bbox; files, how to run, driving columns
+- [Quant bbox via fitz](esg-quant-bbox-fitz.md) — precise number-level bbox for quantitative indicators via PyMuPDF search_for on the value (not Chandra); page-locking + anti-ambiguity + clear-undisclosed
+- [GT three-level coding](esg-gt-three-level-coding.md) — migrated GT 统一编码 from flat two-level to Methodology doc's three-level codes (canonical); name-based crosswalk, G7.1.1 special case
+- [VLM↔GT cross-check pitfalls](vlm-gt-crosscheck-pitfalls.md) — ingest_vlm_to_excel.py four-color verify; two recurring bugs: classify must be value-level not (code+unit)-level, and subscript units (tCO₂e vs tCO2e) cause false 仅GT有; must re-run fitz_bbox_vlm.py after ingest
+- [GPU batching optimization](gpu-batching-optimization.md) — Chandra OCR 批处理优化，batch=16 实现 1.5-2 倍速度提升，GPU 利用率从 40-60% 提升到 94.5%（H100），tokens/s 稳定在 162
+- [GPU error handling and PDF blacklist](gpu-error-handling-pdf-blacklist.md) — GPUHealthTracker 和 PDFBlacklist 机制，GPU 崩溃后立即停止（几秒钟 vs 5+ 小时），自动跳过问题 PDF（ltn201707281159, 2023042100201）
+- [H100 vs A800 performance comparison](h100-a800-performance-comparison.md) — H100 GPU 利用率 94.5% vs A800 47.7%，处理速度 0.07 vs 0.06 pages/s，H100 性能更优，优先使用
+- [GPU crash diagnosis and special PDFs](gpu-crash-diagnosis-special-pdfs.md) — GPU 0 崩溃诊断（2026-07-30 07:03:05），特殊 PDF 分析：ltn201707281159（触发崩溃）和 2023042100201（处理极慢，高分辨率图像）
+- [Workload distribution strategies](workload-distribution-strategies.md) — 基于 OCR 缓存的动态任务分配，避免重复工作，支持断点续传，预计完成时间从 88 小时减半到 37.7 小时
+- [Memory and resource management](memory-resource-management.md) — GPU 显存和系统内存管理，避免 OOM，batch_size 与进程数平衡（3 进程/GPU 推荐 OCR_BATCH_SIZE=8），SLURM 配置 --mem=64G
+- [Pipeline architecture and configuration](pipeline-architecture-configuration.md) — ESG OCR pipeline 架构，关键参数配置，运行流程，日志分析，性能基准，故障处理和最佳实践
+- [ESG OCR project summary](esg-ocr-project-summary.md) — 项目综合总结，所有优化、问题、解决方案和最佳实践的索引，包括 GPU 批处理、错误处理、工作负载均衡、内存管理等
