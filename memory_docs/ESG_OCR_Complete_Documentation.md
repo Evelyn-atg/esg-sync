@@ -50,28 +50,6 @@
 - 内存管理要谨慎（合理的 batch_size 和进程数）
 - H100 vs A800：H100 利用率更高（94.5% vs 47.7%）
 
-### 快速参考
-
-```bash
-# 提交任务
-sbatch run_3stream_gpu0.sh
-
-# 查看任务状态
-squeue -u $USER
-
-# 查看 GPU 状态
-nvidia-smi
-
-# 查看日志
-tail -f logs/ocr_list_00_job*.log
-
-# 检查进度
-grep -c "OCR SUMMARY" logs/ocr_list_*_job*.log | awk -F: '{sum+=$2} END {print sum}'
-
-# 性能对比
-bash compare_gpu_speed.sh <job_id_1> <job_id_2>
-```
-
 ---
 
 ## 2. GPU 批处理优化
@@ -778,8 +756,7 @@ breakdown: img_load 0.04s (0%), generate 725.79s (gpu 725.79s [100%], cpu_overhe
 **可能原因**：
 1. **高分辨率图像**：2598×3484 像素需要大量计算
 2. **复杂布局**：可能导致 Chandra 模型生成更多 tokens
-3. **显存带宽 / Tensor Core 性能限制**：A800 的显存带宽和 Tensor Core 算力低于 H100
-4. **模型过载**：单个 PDF 占用过多 GPU 资源
+3. **模型过载**：单个 PDF 占用过多 GPU 资源
 
 **处理**：
 - 已加入 PDF 黑名单
@@ -1783,50 +1760,6 @@ CPU 开销：0%
 
 ### 故障处理
 
-#### GPU 崩溃
-
-```bash
-# 1. 检查 GPU 健康状态
-cat /tmp/gpu_health_status.json | python -m json.tool
-
-# 2. 重置 GPU 健康状态（GPU 修复后）
-python3 -c "
-import json
-from pathlib import Path
-health_file = Path('/tmp/gpu_health_status.json')
-if health_file.exists():
-    with open(health_file, 'r') as f:
-        data = json.load(f)
-    if 0 in data.get('unhealthy_gpus', []):
-        data['unhealthy_gpus'].remove(0)
-        with open(health_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        print('GPU 0 health status reset')
-"
-```
-
-#### PDF 黑名单
-
-```bash
-# 查看黑名单
-cat /tmp/pdf_blacklist.json | python -m json.tool
-
-# 移除特定 PDF
-python3 -c "
-import json
-from pathlib import Path
-blacklist_file = Path('/tmp/pdf_blacklist.json')
-if blacklist_file.exists():
-    with open(blacklist_file, 'r') as f:
-        data = json.load(f)
-    if 'ltn201707281159' in data.get('blacklisted_pdfs', []):
-        data['blacklisted_pdfs'].remove('ltn201707281159')
-        with open(blacklist_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        print('Removed from blacklist')
-"
-```
-
 #### OOM 错误
 
 ```bash
@@ -1891,12 +1824,6 @@ bash compare_gpu_speed.sh <job_id_1> <job_id_2>
 ```bash
 # 清理临时文件
 find quantitative_results_ocr/chandra_ocr_2/ -name "_tmp_table_crops" -type d -exec rm -rf {} +
-
-# 检查 GPU 健康状态
-cat /tmp/gpu_health_status.json
-
-# 更新 PDF 黑名单（移除已修复的 PDF）
-cat /tmp/pdf_blacklist.json
 ```
 
 ---
@@ -1949,36 +1876,6 @@ bash compare_gpu_speed.sh <job_id_1> <job_id_2>
 ```bash
 # 停止任务
 scancel <job_id>
-
-# 重置 GPU 健康状态
-python3 -c "
-import json
-from pathlib import Path
-health_file = Path('/tmp/gpu_health_status.json')
-if health_file.exists():
-    with open(health_file, 'r') as f:
-        data = json.load(f)
-    if 0 in data.get('unhealthy_gpus', []):
-        data['unhealthy_gpus'].remove(0)
-        with open(health_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        print('GPU 0 health status reset')
-"
-
-# 移除 PDF 黑名单
-python3 -c "
-import json
-from pathlib import Path
-blacklist_file = Path('/tmp/pdf_blacklist.json')
-if blacklist_file.exists():
-    with open(blacklist_file, 'r') as f:
-        data = json.load(f)
-    if 'ltn201707281159' in data.get('blacklisted_pdfs', []):
-        data['blacklisted_pdfs'].remove('ltn201707281159')
-        with open(blacklist_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        print('Removed from blacklist')
-"
 ```
 
 ---
