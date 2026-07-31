@@ -568,7 +568,22 @@ index, temperature.gpu, utilization.gpu [%], memory.used [MiB]
 0, [GPU requires reset], [GPU requires reset], 0 MiB
 ```
 
-**结论**：GPU 0 需要硬件重置（reset）。已发邮件通知 IT 团队，但 IT 尚未回复，故障具体原因待定。
+**结论**：GPU 0 需要硬件重置（reset）。已发邮件通知 IT 团队（Harry），但 IT 尚未回复，故障具体原因待定。
+
+**2026-07-31 故障详情（节点 gpu3，Job 1025）**：
+- 节点：gpu3
+- GPU：NVIDIA H100 80GB HBM3（index 0）
+- Bus ID：`00000000:23:00.0`
+- UUID：`GPU-81050eac-2769-c0a8-8c85-36d731743caa`
+- 驱动：550.54.15，CUDA：12.4
+- 现象：任务运行约 5 小时后出现 `CUDA error: unspecified launch failure`，之后 `nvidia-smi` 显示 `GPU requires reset`，该 GPU 无法继续使用
+- 与文档此前记录的 GPU 0 故障（Job 1016）同为节点 gpu3 的 GPU 0，疑似同一张卡反复故障
+
+> **排查提示**：`nvidia-smi` 等 GPU 命令必须在计算节点执行，登录节点（login1）不提供该命令。正确做法：
+> ```bash
+> ssh gpu3 "nvidia-smi --query-gpu=index,name,pci.bus_id,uuid --format=csv"
+> ```
+> 2026-07-31 在 gpu3 上执行后仅枚举到 1 张 H100（index 0, Bus `00000000:23:00.0`）；文档中「GPU 1 正常运行」（Job 1014）对应的另一张 H100 位于其他计算节点。
 
 ### 对比：GPU 1 正常运行
 
