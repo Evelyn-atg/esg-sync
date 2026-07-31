@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -p A800
+#SBATCH -p A100
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=5
 #SBATCH --mem=64G
-#SBATCH -o ocr_3stream_gpu0_%j.out
+#SBATCH -o ocr_a100_b_%j.out
 
 module load apps/anaconda3/2021.05
 source activate "$HOME/envs/chandra"
@@ -19,10 +19,7 @@ export OCR_BATCH_SIZE=16
 mkdir -p logs
 JOB_TAG="${SLURM_JOB_ID:-local}"
 
-for lst in list_00 list_01 list_02; do
-  [ -f "$lst" ] || continue
-  echo "launching OCR stream for $lst (job $JOB_TAG, GPU 0)"
-  python -m src.main --step numeric_extraction --pdf_list_file "$lst" --force > "logs/ocr_${lst}_job${JOB_TAG}.log" 2>&1 &
-done
-wait
-echo "=== GPU 0 done (job $JOB_TAG) ==="
+echo "launching OCR stream for list_ocr_remaining_b (job $JOB_TAG, A100)"
+python -m src.main --step numeric_extraction --pdf_list_file list_ocr_remaining_b.txt --force > "logs/ocr_list_ocr_remaining_b_job${JOB_TAG}.log" 2>&1
+
+echo "=== A100 done (job $JOB_TAG) ==="

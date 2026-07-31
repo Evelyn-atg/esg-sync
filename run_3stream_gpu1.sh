@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -p A800
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=5
 #SBATCH --mem=64G
 #SBATCH -o ocr_3stream_gpu1_%j.out
 
