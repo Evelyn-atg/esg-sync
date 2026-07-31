@@ -6,7 +6,7 @@ metadata:
   type: reference
   related: "[[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]"
   originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
-  modified: 2026-07-31T09:11:53.036Z
+  modified: 2026-07-31T09:35:47.937Z
 ---
 
 # H100 vs A800 性能对比
@@ -145,17 +145,7 @@ Clocks Event Reasons: 全部 Not Active
 - 处理大量任务时优先分配 H100
 - A800 作为补充或处理小批量任务
 
-### 2. 动态批次调整
-
-```python
-# 检测 GPU 利用率
-if gpu_util < 80%:
-    batch_size = min(batch_size * 2, 32)
-elif gpu_util > 95%:
-    batch_size = max(batch_size // 2, 8)
-```
-
-### 3. 工作负载均衡
+### 2. 工作负载均衡
 
 ```bash
 # 统计每个 list 的表格页数
