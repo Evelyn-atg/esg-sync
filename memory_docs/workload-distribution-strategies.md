@@ -1,9 +1,12 @@
 ---
 name: workload-distribution-strategies
 description: 多 GPU 工作负载分配策略，均匀分配任务，避免重复工作，最大化效率
-metadata:
+metadata: 
+  node_type: memory
   type: project
-  related: [[gpu-batching-optimization]], [[h100-a800-performance-comparison]]
+  related: "[[gpu-batching-optimization]], [[h100-a800-performance-comparison]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:08:22.880Z
 ---
 
 # 工作负载分配策略

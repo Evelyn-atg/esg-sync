@@ -1,9 +1,12 @@
 ---
 name: gpu-error-handling-pdf-blacklist
 description: GPU 错误处理和 PDF 黑名单机制，防止故障 GPU 继续处理，自动跳过问题 PDF
-metadata:
+metadata: 
+  node_type: memory
   type: project
-  related: [[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]
+  related: "[[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:12:30.671Z
 ---
 
 # GPU 错误处理和 PDF 黑名单机制

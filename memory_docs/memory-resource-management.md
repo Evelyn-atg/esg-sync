@@ -1,9 +1,12 @@
 ---
 name: memory-resource-management
 description: GPU 显存和系统内存管理，避免 OOM，优化资源配置，batch size 与进程数的平衡
-metadata:
+metadata: 
+  node_type: memory
   type: reference
-  related: [[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]
+  related: "[[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:12:23.275Z
 ---
 
 # 内存和资源管理

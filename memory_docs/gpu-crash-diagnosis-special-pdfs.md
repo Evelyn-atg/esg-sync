@@ -1,9 +1,12 @@
 ---
 name: gpu-crash-diagnosis-special-pdfs
-description: GPU 崩溃诊断过程，特殊问题 PDF 分析（ltn201707281159, 2023042100201），崩溃原因和解决方案
-metadata:
+description: "GPU 崩溃诊断过程，特殊问题 PDF 分析（ltn201707281159, 2023042100201），崩溃原因和解决方案"
+metadata: 
+  node_type: memory
   type: project
-  related: [[gpu-error-handling-pdf-blacklist]], [[h100-a800-performance-comparison]]
+  related: "[[gpu-error-handling-pdf-blacklist]], [[h100-a800-performance-comparison]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:10:33.664Z
 ---
 
 # GPU 崩溃诊断和特殊 PDF 分析

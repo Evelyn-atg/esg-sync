@@ -1,9 +1,12 @@
 ---
 name: pipeline-architecture-configuration
 description: ESG OCR pipeline 架构，配置文件，关键参数，运行流程和最佳实践
-metadata:
+metadata: 
+  node_type: memory
   type: reference
-  related: [[gpu-batching-optimization]], [[memory-resource-management]], [[workload-distribution-strategies]]
+  related: "[[gpu-batching-optimization]], [[memory-resource-management]], [[workload-distribution-strategies]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:12:27.910Z
 ---
 
 # Pipeline 架构和配置

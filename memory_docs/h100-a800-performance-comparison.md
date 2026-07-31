@@ -1,9 +1,12 @@
 ---
 name: h100-a800-performance-comparison
 description: H100 与 A800 GPU 性能对比，H100 利用率更高，A800 受内存带宽限制
-metadata:
+metadata: 
+  node_type: memory
   type: reference
-  related: [[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]
+  related: "[[gpu-batching-optimization]], [[chandra-gpu-cluster-setup]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:11:53.036Z
 ---
 
 # H100 vs A800 性能对比

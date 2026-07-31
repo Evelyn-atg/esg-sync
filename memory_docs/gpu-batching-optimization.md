@@ -1,9 +1,12 @@
 ---
 name: gpu-batching-optimization
 description: Chandra OCR 批处理优化实现，从单张处理到 batch=16，性能提升 1.5-2 倍
-metadata:
+metadata: 
+  node_type: memory
   type: project
-  related: [[chandra-gpu-cluster-setup]], [[esg-pipeline-architecture]]
+  related: "[[chandra-gpu-cluster-setup]], [[esg-pipeline-architecture]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:09:40.762Z
 ---
 
 # GPU 批处理优化

@@ -1,9 +1,12 @@
 ---
 name: esg-ocr-project-summary
 description: ESG OCR 项目总结，包括所有优化、问题、解决方案和最佳实践的综合索引
-metadata:
+metadata: 
+  node_type: memory
   type: project
-  related: [[gpu-batching-optimization]], [[gpu-error-handling-pdf-blacklist]], [[h100-a800-performance-comparison]], [[gpu-crash-diagnosis-special-pdfs]], [[workload-distribution-strategies]], [[memory-resource-management]], [[pipeline-architecture-configuration]]
+  related: "[[gpu-batching-optimization]], [[gpu-error-handling-pdf-blacklist]], [[h100-a800-performance-comparison]], [[gpu-crash-diagnosis-special-pdfs]], [[workload-distribution-strategies]], [[memory-resource-management]], [[pipeline-architecture-configuration]]"
+  originSessionId: 22294c7b-2e97-4645-a148-1a37910e37ce
+  modified: 2026-07-31T09:12:35.545Z
 ---
 
 # ESG OCR 项目总结
