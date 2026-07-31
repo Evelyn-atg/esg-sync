@@ -471,11 +471,10 @@ Avg CPU overhead: 0%
 
 #### A800 GPU 利用率低的原因
 
-1. **Tensor Core 性能与显存带宽较低（注意：与 NVLink 无关）**
+1. **Tensor Core 性能与显存带宽较低**
    - A800 是 A100 的中国特供版，相比 H100，其 Tensor Core 算力和显存带宽都更低
    - OCR 推理任务大量依赖 Transformer 计算与显存访问，因此在相同 batch size 和 pipeline 配置下 GPU 利用率偏低（47.7% vs 94.5%）
    - 大 batch 处理时显存带宽成为瓶颈
-   - ⚠️ 修正：此前将原因归为「NVLink 带宽被削减（400GB/s vs 600GB/s）」是错误的。NVLink 用于多 GPU 间通信，而当前任务为**单 GPU 推理，不涉及 GPU 间通信**，因此 NVLink 带宽并不是利用率低的主要因素
 
 2. **批次大小问题**
    - 某些 PDF 只有 1-3 页
@@ -785,7 +784,7 @@ breakdown: img_load 0.04s (0%), generate 725.79s (gpu 725.79s [100%], cpu_overhe
 **可能原因**：
 1. **高分辨率图像**：2598×3484 像素需要大量计算
 2. **复杂布局**：可能导致 Chandra 模型生成更多 tokens
-3. **显存带宽 / Tensor Core 性能限制**：A800 的显存带宽和 Tensor Core 算力低于 H100（与 NVLink 无关，本任务为单 GPU 推理，不涉及 GPU 间通信）
+3. **显存带宽 / Tensor Core 性能限制**：A800 的显存带宽和 Tensor Core 算力低于 H100
 4. **模型过载**：单个 PDF 占用过多 GPU 资源
 
 **处理**：
