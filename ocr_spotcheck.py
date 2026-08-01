@@ -29,29 +29,29 @@ def summarize_ocr(path):
     try:
         d = json.load(io.open(path, "r", encoding="utf-8"))
     except Exception as e:
-        return {"error": "{}: {}".format(type(e).__name__, e)}
+        return {"error": u"{}: {}".format(type(e).__name__, e)}
     tables = find_tables(d)
     n_tables = len(tables)
     has_bbox = any(isinstance(t, dict) and "bbox" in t for t in tables)
     pqs = [t.get("parse_quality_score") for t in tables[:3]
            if isinstance(t, dict) and "parse_quality_score" in t]
-    preview = ""
+    preview = u""
     if tables and isinstance(tables[0], dict):
-        preview = tables[0].get("html") or tables[0].get("text") or tables[0].get("markdown") or ""
+        preview = tables[0].get("html") or tables[0].get("text") or tables[0].get("markdown") or u""
     return {"pages": d.get("num_pages") if isinstance(d, dict) else None,
             "n_tables": n_tables, "has_bbox": has_bbox,
-            "parse_quality_scores": pqs, "text_preview": (preview or "")[:300]}
+            "parse_quality_scores": pqs, "text_preview": (preview or u"")[:300]}
 
 
 def summarize_numeric(path):
     try:
         d = json.load(io.open(path, "r", encoding="utf-8"))
     except Exception as e:
-        return {"error": "{}: {}".format(type(e).__name__, e)}
+        return {"error": u"{}: {}".format(type(e).__name__, e)}
     blocks = pick_blocks(d)
     n = len(blocks)
     has_bbox = any(isinstance(b, dict) and "bbox" in b for b in blocks)
-    preview = json.dumps(blocks[0], ensure_ascii=False)[:300] if blocks else ""
+    preview = json.dumps(blocks[0], ensure_ascii=False)[:300] if blocks else u""
     return {"n_blocks": n, "has_bbox": has_bbox, "block_preview": preview}
 
 
@@ -65,11 +65,11 @@ def main():
     args = ap.parse_args()
 
     if not os.path.isdir(args.ocr_root):
-        sys.exit("OCR root not found: {}\n(run this from inside ~/esg-pipeline)".format(args.ocr_root))
+        sys.exit(u"OCR root not found: {}\n(run this from inside ~/esg-pipeline)".format(args.ocr_root))
 
     pdf_dirs = sorted(p for p in glob.glob(os.path.join(args.ocr_root, "*")) if os.path.isdir(p))
     if not pdf_dirs:
-        sys.exit("No PDF dirs under " + args.ocr_root)
+        sys.exit(u"No PDF dirs under " + args.ocr_root)
 
     random.seed(args.seed)
     n = min(args.n, len(pdf_dirs))
@@ -89,12 +89,12 @@ def main():
                 "num_root": os.path.abspath(args.num_root),
                 "n_total": len(pdf_dirs), "n_sampled": n, "samples": []}
 
-    md = ["# OCR Spot-check - " + ts, "",
-          "- seed: `{}`".format(args.seed),
-          "- total PDF dirs: {}".format(len(pdf_dirs)),
-          "- sampled: {}".format(n),
-          "- ocr_root: `{}`".format(args.ocr_root),
-          "- num_root: `{}`".format(args.num_root), ""]
+    md = [u"# OCR Spot-check - " + ts, u"",
+          u"- seed: `{}`".format(args.seed),
+          u"- total PDF dirs: {}".format(len(pdf_dirs)),
+          u"- sampled: {}".format(n),
+          u"- ocr_root: `{}`".format(args.ocr_root),
+          u"- num_root: `{}`".format(args.num_root), u""]
 
     for d in chosen:
         pdf = os.path.basename(d)
@@ -105,7 +105,7 @@ def main():
             num = summarize_numeric(num_file)
             shutil.copy(num_file, os.path.join(num_dir, pdf + ".json"))
         else:
-            num = {"error": "numeric_blocks.json NOT FOUND"}
+            num = {"error": u"numeric_blocks.json NOT FOUND"}
         if os.path.exists(ocr_file):
             shutil.copy(ocr_file, os.path.join(ocr_dir, pdf + ".json"))
 
@@ -118,27 +118,27 @@ def main():
 
         manifest["samples"].append({"pdf": pdf, "ocr": ocr, "numeric": num, "flags": flags})
 
-        md.append("## " + pdf)
-        md.append("- OCR: tables={}, has_bbox={}, pages={}, pqs={}".format(
+        md.append(u"## " + pdf)
+        md.append(u"- OCR: tables={}, has_bbox={}, pages={}, pqs={}".format(
             ocr.get("n_tables"), ocr.get("has_bbox"), ocr.get("pages"), ocr.get("parse_quality_scores")))
-        md.append("- Numeric: blocks={}, has_bbox={}".format(num.get("n_blocks"), num.get("has_bbox")))
+        md.append(u"- Numeric: blocks={}, has_bbox={}".format(num.get("n_blocks"), num.get("has_bbox")))
         if flags:
-            md.append("- **FLAGS**: {}".format(flags))
+            md.append(u"- **FLAGS**: {}".format(flags))
         if ocr.get("text_preview"):
-            md.append("- OCR preview: {}".format(ocr["text_preview"]))
+            md.append(u"- OCR preview: {}".format(ocr["text_preview"]))
         if num.get("block_preview"):
-            md.append("- Numeric preview: {}".format(num["block_preview"]))
-        md.append("")
+            md.append(u"- Numeric preview: {}".format(num["block_preview"]))
+        md.append(u"")
 
     json.dump(manifest, io.open(os.path.join(rundir, "manifest.json"), "w", encoding="utf-8"),
               indent=2, ensure_ascii=False)
-    io.open(os.path.join(rundir, "manifest.md"), "w", encoding="utf-8").write("\n".join(md))
+    io.open(os.path.join(rundir, "manifest.md"), "w", encoding="utf-8").write(u"\n".join(md))
 
-    print("Spot-check complete. {}/{} sampled (seed={}).".format(n, len(pdf_dirs), args.seed))
-    print("Trace saved under: " + os.path.abspath(rundir))
-    print("Chosen PDFs:")
+    print(u"Spot-check complete. {}/{} sampled (seed={}).".format(n, len(pdf_dirs), args.seed))
+    print(u"Trace saved under: " + os.path.abspath(rundir))
+    print(u"Chosen PDFs:")
     for s in manifest["samples"]:
-        print("  {}  ocr_tables={}  num_blocks={}  flags={}".format(
+        print(u"  {}  ocr_tables={}  num_blocks={}  flags={}".format(
             s["pdf"], s["ocr"].get("n_tables"), s["numeric"].get("n_blocks"), s["flags"]))
 
 
