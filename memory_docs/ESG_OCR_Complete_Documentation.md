@@ -234,6 +234,14 @@ nvidia-smi                 # GPU
 grep -c "OCR SUMMARY" logs/ocr_list_*_job*.log | awk -F: '{s+=$2}END{print s}'  # 进度
 ```
 
+## 10. 运行环境与版本（2026-08-01 实测）
+
+| 项 | 值 | 备注 |
+|---|---|---|
+| 登录节点默认 `python` | **2.7.5**（`/usr/lib64/python2.7`） | login1 **没有 `python3`**；直接在登录节点跑脚本必须 py2.7 兼容：不能用 f-string；含中文的字符串模板用 `u"..."`；写 JSON 用 `json.dumps(..., ensure_ascii=True)` + 普通文件写入（py2 的 `json.dump` 写 utf-8 流会报 `TypeError: must be unicode, not str`） |
+
+> 编译器版本（GCC / CUDA nvcc）与 job 内实际解释器（管线需 python3，应为 conda/env 激活）待补充。
+
 ---
 
-**文档版本**：2.0（精简版） ｜ **最后更新**：2026-07-31
+**文档版本**：2.0（精简版） ｜ **最后更新**：2026-08-01
