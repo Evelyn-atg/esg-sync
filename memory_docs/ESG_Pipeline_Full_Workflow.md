@@ -35,7 +35,7 @@ flowchart LR
 | S1 pdf_extraction | `pdf_extractor.py` (PyMuPDF) | PDF | 抽每页纯文本（可选渲染页图） | `text/{编号}.txt` |
 | S2 text_processing | `text_processor.py` | text | 切分段落 | `paragraphs/{编号}/paragraphs.json` |
 | S3 numeric_extraction | `numeric_extractor.py` | paragraphs + PDF | 文本块正则过滤（`_is_noise_line`/`_has_meaningful_numbers`）+ 表格页整页 OCR（**OCR_BACKEND 可配**：Datalab API / 本地 Chandra） | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
-| S4 **llm_matching** | `llm_variable_matcher.py` | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标变量定义，2026-08-01 起） | **Qwen-Max API** 把数字块匹配到指标变量（批内 3 块/次、内容截断 6000 字符、超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
+| S4 **llm_matching** | `llm_variable_matcher.py` | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**，2026-08-01 起） | **Qwen-Max API** 把数字块匹配到指标变量（批内 3 块/次、内容截断 6000 字符、超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
 | S5 calculation | `calculator.py` | 定量分析 JSON + 公式 | Qwen-Max 公式计算/推导 | `result/{编号}/{编号}_calculation_result.json` |
 | S6 入库 | `DB/*.py` | 定性/定量结果 | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
 
