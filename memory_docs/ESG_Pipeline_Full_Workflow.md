@@ -18,7 +18,7 @@ flowchart LR
     E --> G["numeric_blocks.json<br/>表格页整页 HTML（has_table）"]
     D --> G
     F --> H["chandra_ocr_2 缓存<br/>bbox/质量分/content_html"]
-    G --> I["LLM 抽取+校验<br/>(规划中)"]
+    G --> I["Qwen-VL 定量抽取（已实现）<br/>裁剪图 → 指标JSON → 匹配/聚合"]
     I --> J["结构化 ESG 数据集<br/>JSON / 入库"]
 ```
 
@@ -35,7 +35,8 @@ flowchart LR
 | S3 整页 OCR | GPU | 表格页**整页图** | Chandra OCR 整页（batch=16） | 整页 OCR 结果（html/chunks/parse_quality） |
 | S3b 表格拆分 | CPU | OCR chunks + 整页图 | OCR **后**按 chunk bbox 裁每张表留档（`page_XXX_table_NN.png`），生成 table_block_id/bbox | chandra_ocr_2 缓存 + 表格裁剪图 |
 | S4 数字输出 | - | 文本块 + 表格页整页 HTML | 组装 `numeric_extracts/<pdf>/numeric_blocks.json` | **最终数字结果** |
-| S5 LLM（规划） | GPU/API | numeric_blocks + OCR 缓存 | 结构化抽取、标准化、校验 | 结构化 ESG 数据集 |
+| S5 定量抽取 | GPU/API | **表格裁剪图** + table_block 富记录 + 变量定义 | Qwen-VL 抽指标 JSON → 变量匹配/聚合/公式补全（见 §6.1） | 每 PDF quantitative 结果 |
+| S6 规划 | GPU/API | 正文段落（可选）/跨报告 | 语义增强、跨报告聚合、终检校验（见 §6.2，未实现） | 结构化 ESG 数据集 |
 
 **横切机制**：GPU 健康追踪（`/tmp/gpu_health_status.json`）+ PDF 黑名单（`/tmp/pdf_blacklist.json`）崩溃止损；Slurm QoS 限 16 CPU/用户（3 job × 5 = 15 ≤ 16）；每 job 1 张 GPU + 1 主进程 + 5 数据 worker。
 
@@ -72,16 +73,28 @@ flowchart LR
 
 ---
 
-## 6. LLM 结合阶段（规划中，待确认）
+## 6. LLM / 定量抽取（现状已实现 + 规划）
 
-> 以下为建议的默认设计，**具体流程待确认后更新**。
+### 6.1 现状（代码已实现，`chandra_ocr_tester.py`）
 
-| 步骤 | 输入 | 输出 | 说明 |
+**视觉 LLM 的输入是「表格裁剪图 + table_block 富记录」，不是 numeric_blocks。**
+
+| 步骤 | 输入 | 处理 | 输出 |
 |---|---|---|---|
-| L1 结构化抽取 | numeric_blocks + OCR 缓存 | 指标键值对 | LLM 从表格/文本块抽取「指标名/数值/单位/年度/口径」 |
-| L2 标准化映射 | 抽取结果 | 标准化字段 | 单位换算、指标别名归一、中英/繁简对齐 |
-| L3 聚合消解 | 标准化结果 | 指标面板 | 跨表、跨报告聚合与冲突消解 |
-| L4 质量校验 | 结果 + 原文 | 校验报告 | 数值合理性、回看 OCR 原文核对、缺失指标标注 |
+| E1 整页 OCR | 表格页整页图 | DataLab API / 本地 Chandra（`ocr_layout`） | 整页 html/chunks（chunk 带 bbox/label） |
+| E2 裁表格 | 整页图 + chunk bbox | `img.crop` 裁每张表 | `page_XXX_table_NN.png` + 富记录（table_block_id/bbox/content_html/section） |
+| E3 视觉 LLM 抽取 | **表格裁剪图** + table_block + 变量定义 | Qwen-VL/7B `recognize_table_json_content_unified`，`_should_analyze_table_with_qwen` 门控（信号分低→skip） | 指标/数值/单位 JSON |
+| E4 匹配聚合 | 抽取结果 | `_best_variable_match`（<45 丢）、定义门槛、报告期、组件聚合、Scope1+2 推导、公式补全 | 每 PDF quantitative 结果文件 |
+
+> 关键澄清：`numeric_blocks.json`（S4）是 CPU 正则过滤后的**交付物/去重标记**，**不是** LLM 抽取的输入。文本块（paragraphs.json → 正则过滤）与表格路径各自独立产出，最终都汇入 numeric_blocks。
+
+### 6.2 规划（未实现，待确认）
+
+| 步骤 | 说明 |
+|---|---|
+| P1 正文段落语义增强 | 把非表格正文也喂 LLM（当前正文只进 numeric_blocks 文本块） |
+| P2 跨报告聚合 | 多份 PDF 指标合并、冲突消解 |
+| P3 终检 LLM 校验 | 数值合理性 + 回看 OCR 原文 + 缺失指标标注 |
 
 最终输出：**结构化 ESG 数据集**（JSON / 入库），供下游分析使用。
 
