@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# v2: exact matching via table_block_id (found in block 'source'/'content'),
-#     table preview via content_html. py2.7-safe (no f-strings, u"" literals,
-#     json writes via ensure_ascii=True + plain open).
+# v3: run against a STABLE snapshot dir (--from-dir), classify OCR tables by
+# content (real table vs chart/image vs other), dump block source values to
+# reveal linkage, page-level real-table vs has_table-block coverage.
+# py2.7-safe: no f-strings, u"" literals, json via ensure_ascii=True.
 from __future__ import print_function
-import os, sys, io, json, random, glob, shutil, datetime, argparse, re
-
-TBL_ID_RE = re.compile(r"/page/\d+/Table/\d+")
+import os, sys, io, json, random, glob, shutil, datetime, argparse
 
 
 def load(path):
@@ -45,40 +44,31 @@ def page_of(x):
     return None
 
 
-def table_id(t):
+def content_of(t):
     if isinstance(t, dict):
-        v = t.get("table_block_id")
-        if v is not None:
-            return u"{}".format(v)
-    return None
+        for k in ("content_html", "html", "content", "markdown", "text"):
+            if t.get(k):
+                return u"{}".format(t[k])
+    return u""
 
 
-def block_ids(b):
-    if not isinstance(b, dict):
-        return set()
-    out = set()
-    for k in ("source", "content", "text", "markdown"):
-        v = b.get(k)
-        if isinstance(v, dict):
-            v = json.dumps(v, ensure_ascii=True)
-        if v is not None:
-            out |= set(TBL_ID_RE.findall(u"{}".format(v)))
-    return out
+def classify(t):
+    c = content_of(t).lower()
+    if u"<table" in c:
+        return u"table"
+    if u"<img" in c:
+        return u"chart_img"
+    if not c.strip():
+        return u"empty"
+    return u"other"
 
 
-def has_table_flag(b):
-    if isinstance(b, dict):
-        return bool(b.get("has_table"))
-    return False
-
-
-def preview(x, n=90):
+def preview(x, n=80):
     if isinstance(x, dict):
         for k in ("content_html", "html", "content", "text", "markdown"):
             if x.get(k):
-                return u"{}".format(x[k]).replace(u"\n", u" ").replace(u"<", u"<")[:n]
-        s = json.dumps(x, ensure_ascii=True)
-        return s[:n]
+                return u"{}".format(x[k]).replace(u"\n", u" ")[:n]
+        return json.dumps(x, ensure_ascii=True)[:n]
     return u"{}".format(x)[:n]
 
 
@@ -86,54 +76,58 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=10)
     ap.add_argument("--seed", type=int, default=20260801)
+    ap.add_argument("--from-dir", default=None,
+                    help="run against an existing snapshot dir (must contain ocr/ and numeric/ subdirs)")
     ap.add_argument("--ocr-root", default="quantitative_results_ocr/chandra_ocr_2")
     ap.add_argument("--num-root", default="numeric_extracts")
     ap.add_argument("--out", default="spotcheck_report")
     args = ap.parse_args()
 
-    if not os.path.isdir(args.ocr_root):
-        sys.exit(u"OCR root not found: {}\n(run this from inside ~/esg-pipeline)".format(args.ocr_root))
+    if args.from_dir:
+        ocr_root = os.path.join(args.from_dir, "ocr")
+        num_root = os.path.join(args.from_dir, "numeric")
+        snap = True
+    else:
+        ocr_root, num_root, snap = args.ocr_root, args.num_root, False
 
-    pdf_dirs = sorted(p for p in glob.glob(os.path.join(args.ocr_root, "*")) if os.path.isdir(p))
-    if not pdf_dirs:
-        sys.exit(u"No PDF dirs under " + args.ocr_root)
+    if not os.path.isdir(ocr_root):
+        sys.exit(u"OCR root not found: {}\n(run this from inside ~/esg-pipeline)".format(ocr_root))
 
-    random.seed(args.seed)
-    n = min(args.n, len(pdf_dirs))
-    chosen = random.sample(pdf_dirs, n)
+    if snap:
+        pdfs = sorted(os.path.basename(f)[:-5] for f in glob.glob(os.path.join(ocr_root, "*.json")))
+        chosen = pdfs[:args.n]
+    else:
+        pdf_dirs = sorted(p for p in glob.glob(os.path.join(ocr_root, "*")) if os.path.isdir(p))
+        random.seed(args.seed)
+        n = min(args.n, len(pdf_dirs))
+        chosen = [os.path.basename(p) for p in random.sample(pdf_dirs, n)]
 
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     rundir = os.path.join(args.out, "report_" + ts)
-    ocr_dir = os.path.join(rundir, "ocr")
-    num_dir = os.path.join(rundir, "numeric")
-    for d in (ocr_dir, num_dir):
-        if not os.path.isdir(d):
-            os.makedirs(d)
+    if not os.path.isdir(rundir):
+        os.makedirs(rundir)
 
-    md = [u"# OCR 抽样核对报告 v2（按 table_block_id 精确匹配）", u"",
-          u"- 时间: " + ts, u"- seed: `{}`".format(args.seed),
-          u"- 抽样数: {}".format(n),
-          u"- ocr_root: `{}`".format(args.ocr_root),
-          u"- num_root: `{}`".format(args.num_root), u""]
+    md = [u"# OCR 抽样核对报告 v3（内容分类 + 页码覆盖，基于快照）", u"",
+          u"- 时间: " + ts, u"- 来源: " + (u"快照 " + args.from_dir if snap else u"实时目录"),
+          u"- 抽样数: {}".format(len(chosen)), u"- ocr_root: `{}`".format(ocr_root),
+          u"- num_root: `{}`".format(num_root), u""]
 
-    summary_rows = [u"| PDF | OCR表数 | numeric块数 | 块中 has_table | 精确命中 | 真正被排除 |",
-                    u"|---|---|---|---|---|---|"]
-    manifest = {"generated_at": ts, "seed": args.seed, "n_total": len(pdf_dirs), "n_sampled": n, "samples": []}
+    summary_rows = [u"| PDF | 表区域 | 真表格 | 图表/图片 | 其他/空 | 块数 | has_table块 | 块source值 | 页码级疑似缺失页 |",
+                    u"|---|---|---|---|---|---|---|---|---|"]
+    manifest = {"generated_at": ts, "n_total": len(chosen), "n_sampled": len(chosen), "samples": []}
 
-    for d in chosen:
-        pdf = os.path.basename(d)
-        ocr_file = os.path.join(d, pdf + "_ocr_output.json")
-        num_file = os.path.join(args.num_root, pdf, "numeric_blocks.json")
+    for pdf in chosen:
+        if snap:
+            ocr_file = os.path.join(ocr_root, pdf + ".json")
+            num_file = os.path.join(num_root, pdf + ".json")
+        else:
+            ocr_file = os.path.join(ocr_root, pdf, pdf + "_ocr_output.json")
+            num_file = os.path.join(num_root, pdf, "numeric_blocks.json")
 
         ocr = load(ocr_file)
         tables = find_tables(ocr)
         num = load(num_file)
         blocks = pick_blocks(num)
-
-        if os.path.exists(ocr_file):
-            shutil.copy(ocr_file, os.path.join(ocr_dir, pdf + ".json"))
-        if os.path.exists(num_file):
-            shutil.copy(num_file, os.path.join(num_dir, pdf + ".json"))
 
         md.append(u"## " + pdf)
         if "__error__" in ocr or "__error__" in num:
@@ -141,57 +135,62 @@ def main():
             md.append(u"")
             continue
 
-        n_tables = len(tables)
-        n_blocks = len(blocks)
-        n_ht = sum(1 for b in blocks if has_table_flag(b))
-
-        ids = {}
+        # classify OCR tables
+        cat = {u"table": 0, u"chart_img": 0, u"other": 0, u"empty": 0}
+        real_pages = {}
         for i, t in enumerate(tables):
-            tid = table_id(t)
-            if tid:
-                ids.setdefault(tid, []).append(i)
+            c = classify(t)
+            cat[c] += 1
+            if c == u"table":
+                p = page_of(t)
+                if p is not None:
+                    real_pages.setdefault(p, []).append((i, t))
 
-        # every table id that appears in any block -> covered (made it into final output)
-        covered = set()
-        block_src = []
+        # blocks: has_table flag + unique source values
+        n_blocks = len(blocks)
+        n_ht = sum(1 for b in blocks if isinstance(b, dict) and b.get("has_table"))
+        sources = []
+        ht_pages = {}
         for i, b in enumerate(blocks):
-            bids = block_ids(b)
-            covered |= bids
-            block_src.append((i, page_of(b), has_table_flag(b), u",".join(sorted(bids)) or u"-",
-                              preview(b.get("source") if isinstance(b, dict) else None, 40)))
+            if isinstance(b, dict):
+                s = b.get("source")
+                if s is not None:
+                    sv = u"{}".format(s)
+                    if sv not in sources:
+                        sources.append(sv)
+                if b.get("has_table"):
+                    p = page_of(b)
+                    if p is not None:
+                        ht_pages.setdefault(p, []).append(i)
 
-        excluded = []
-        for tid, idxs in sorted(ids.items()):
-            if tid not in covered:
-                for i in idxs:
-                    t = tables[i]
-                    excluded.append({"table_block_id": tid, "page": page_of(t),
-                                     "preview": preview(t, 80)})
+        # page-level: pages with real tables exceeding has_table blocks
+        suspect_pages = []
+        for p in sorted(set(real_pages.keys()) | set(ht_pages.keys())):
+            nt = len(real_pages.get(p, []))
+            nh = len(ht_pages.get(p, []))
+            if nt > nh:
+                suspect_pages.append({"page": p, "real_tables": nt, "has_table_blocks": nh,
+                                      "tables": [preview(t) for _, t in real_pages[p]]})
 
-        # blocks that claim has_table but carry no recognizable table id
-        orphan_ht = [i for i, b in enumerate(blocks) if has_table_flag(b) and not block_ids(b)]
-
-        md.append(u"- 表格 {} 张 / numeric 块 {} 个（其中 has_table={}）".format(n_tables, n_blocks, n_ht))
-        md.append(u"- numeric 块 source 摘要: {}".format(
-            u"; ".join(u"B{} page={} has_table={} ids=[{}] src={}".format(i, p, h, ids2, s)
-                       for i, p, h, ids2, s in block_src)))
-        if excluded:
-            md.append(u"- **真正被排除（OCR 检出但未进入任何 numeric 块）: {} 张**".format(len(excluded)))
-            for e in excluded:
-                md.append(u"  - {} page={} : {}".format(e["table_block_id"], e["page"], e["preview"]))
+        md.append(u"- 表区域 {} 个：真表格 {} / 图表图片 {} / 其他 {} / 空 {}".format(
+            len(tables), cat[u"table"], cat[u"chart_img"], cat[u"other"], cat[u"empty"]))
+        md.append(u"- numeric 块 {} 个，has_table={}".format(n_blocks, n_ht))
+        md.append(u"- 块 source 唯一值 ({}): {}".format(len(sources), u" | ".join(sources) if sources else u"(空)"))
+        if suspect_pages:
+            md.append(u"- **页码级疑似缺失**（该页真表格数 > has_table 块数）:")
+            for sp in suspect_pages:
+                md.append(u"  - page={}: 真表格 {} vs 块 {} → 表: {}".format(
+                    sp["page"], sp["real_tables"], sp["has_table_blocks"], u" || ".join(sp["tables"])))
         else:
-            md.append(u"- **真正被排除: 0 张（全部 OCR 表都有对应 numeric 块）**")
-        if orphan_ht:
-            md.append(u"- 注意: {} 个块 has_table=True 但未带 table_block_id（可能按内容识别，未计入精确命中）".format(len(orphan_ht)))
+            md.append(u"- 页码级无缺失（真表格均有对应 has_table 块）")
         md.append(u"")
 
-        summary_rows.append(u"| {} | {} | {} | {} | {} | {} |".format(
-            pdf, n_tables, n_blocks, n_ht, len(ids) - len(excluded), len(excluded)))
-        manifest["samples"].append({"pdf": pdf, "n_tables": n_tables, "n_blocks": n_blocks,
-                                    "n_blocks_has_table": n_ht,
-                                    "n_exact_hit": len(ids) - len(excluded),
-                                    "n_excluded": len(excluded),
-                                    "excluded": excluded})
+        summary_rows.append(u"| {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+            pdf, len(tables), cat[u"table"], cat[u"chart_img"], cat[u"other"] + cat[u"empty"],
+            n_blocks, n_ht, u",".join(sources)[:40] or u"-", len(suspect_pages)))
+        manifest["samples"].append({"pdf": pdf, "n_tables": len(tables), "categories": cat,
+                                    "n_blocks": n_blocks, "n_has_table": n_ht,
+                                    "sources": sources, "suspect_pages": suspect_pages})
 
     md = md[:8] + summary_rows + [u""] + md[8:]
 
@@ -200,16 +199,22 @@ def main():
     io.open(os.path.join(rundir, "report.md"), "w", encoding="utf-8").write(u"\n".join(md))
 
     print(u"== Summary ==")
+    print(u"  {:<16} {:>4} {:>4} {:>4} {:>4} {:>5} {:>4} {:>6}".format(
+        u"PDF", u"表", u"真表", u"图表", u"其他", u"块", u"ht", u"疑缺页"))
     for s in manifest["samples"]:
-        print(u"  {}  tables={}  blocks={}  has_table={}  exact_hit={}  EXCLUDED={}".format(
-            s["pdf"], s["n_tables"], s["n_blocks"], s["n_blocks_has_table"],
-            s["n_exact_hit"], s["n_excluded"]))
-    print(u"== Excluded details ==")
+        print(u"  {:<16} {:>4} {:>4} {:>4} {:>4} {:>5} {:>4} {:>6}".format(
+            s["pdf"], s["n_tables"], s["categories"][u"table"], s["categories"][u"chart_img"],
+            s["categories"][u"other"] + s["categories"][u"empty"],
+            s["n_blocks"], s["n_has_table"], len(s["suspect_pages"])))
+    print(u"== Unique block source values ==")
     for s in manifest["samples"]:
-        if s["excluded"]:
-            print(u"  [{}]".format(s["pdf"]))
-            for e in s["excluded"]:
-                print(u"    {} page={} : {}".format(e["table_block_id"], e["page"], e["preview"]))
+        print(u"  [{}] {}".format(s["pdf"], u" | ".join(s["sources"]) if s["sources"] else u"(no source field)"))
+    print(u"== 页码级疑似缺失（真表格数 > has_table 块数）==")
+    for s in manifest["samples"]:
+        for sp in s["suspect_pages"]:
+            print(u"  [{}] page={} 真表格 {} vs 块 {} : {}".format(
+                s["pdf"], sp["page"], sp["real_tables"], sp["has_table_blocks"],
+                u" || ".join(sp["tables"])[:120]))
     print(u"Report files: " + os.path.abspath(rundir))
 
 
