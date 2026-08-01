@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-import os, sys, io, json, random, glob, shutil, datetime, argparse
+import os, sys, io, json, random, glob, shutil, datetime, argparse, tempfile
 
 
 def pick_blocks(obj):
@@ -62,7 +62,20 @@ def main():
     ap.add_argument("--ocr-root", default="quantitative_results_ocr/chandra_ocr_2")
     ap.add_argument("--num-root", default="numeric_extracts")
     ap.add_argument("--out", default="spotcheck")
+    ap.add_argument("--selftest", action="store_true",
+                    help="quick self-test of the file-writing paths (py2.7 unicode/json), then exit")
     args = ap.parse_args()
+
+    if args.selftest:
+        d = tempfile.mkdtemp(prefix="spotcheck_selftest_")
+        fake = {u"pdf": u"2022示例", u"ocr": {u"n_tables": 2, u"text_preview": u"营业收入 123 万元"},
+                u"numeric": {u"n_blocks": 1, u"block_preview": u"{\"value\": 123, \"单位\": \"万元\"}"}}
+        with open(os.path.join(d, "manifest.json"), "w") as f:
+            f.write(json.dumps(fake, indent=2, ensure_ascii=True))
+        io.open(os.path.join(d, "manifest.md"), "w", encoding="utf-8").write(
+            u"# selftest\n" + u"- OCR preview: {}".format(fake[u"ocr"][u"text_preview"]))
+        print(u"SELFTEST OK -> " + os.path.abspath(d))
+        return
 
     if not os.path.isdir(args.ocr_root):
         sys.exit(u"OCR root not found: {}\n(run this from inside ~/esg-pipeline)".format(args.ocr_root))
@@ -130,8 +143,8 @@ def main():
             md.append(u"- Numeric preview: {}".format(num["block_preview"]))
         md.append(u"")
 
-    json.dump(manifest, io.open(os.path.join(rundir, "manifest.json"), "w", encoding="utf-8"),
-              indent=2, ensure_ascii=False)
+    with open(os.path.join(rundir, "manifest.json"), "w") as f:
+        f.write(json.dumps(manifest, indent=2, ensure_ascii=True))
     io.open(os.path.join(rundir, "manifest.md"), "w", encoding="utf-8").write(u"\n".join(md))
 
     print(u"Spot-check complete. {}/{} sampled (seed={}).".format(n, len(pdf_dirs), args.seed))
