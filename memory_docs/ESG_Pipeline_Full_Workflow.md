@@ -10,15 +10,16 @@
 
 ```mermaid
 flowchart LR
-    A["PDF 列表<br/>list_a/b/c<br/>9637 份"] --> B["渲染<br/>2598×3484<br/>CPU ×5 workers"]
-    B --> C{"区块检测<br/>CPU 启发式"}
-    C -->|"文本块"| D["正则过滤<br/>noise / 有效数字"]
-    C -->|"表格块"| E["Chandra OCR<br/>GPU · batch=16"]
-    D --> F["numeric_blocks.json<br/>含数字文本块"]
-    E --> G["OCR 缓存<br/>chandra_ocr_2<br/>bbox/质量分/content_html"]
-    G -->|"表格数字块"| F
-    F --> H["LLM 抽取+校验<br/>(规划中)"]
-    H --> I["结构化 ESG 数据集<br/>JSON / 入库"]
+    A["PDF 列表<br/>list_a/b/c<br/>9637 份"] --> B["PyMuPDF 抽纯文本<br/>+ 整页渲染 2598×3484<br/>CPU ×5 workers"]
+    B --> C{"表格页检测<br/>文本启发式（页面级）"}
+    B --> D["文本块 paragraphs.json<br/>正则过滤 → 含数字文本块"]
+    C -->|"表格页"| E["Chandra OCR<br/>整页图 · GPU batch=16"]
+    E --> F["OCR 后按 chunk 拆 per-table<br/>bbox/table_block_id + 裁图留档"]
+    E --> G["numeric_blocks.json<br/>表格页整页 HTML（has_table）"]
+    D --> G
+    F --> H["chandra_ocr_2 缓存<br/>bbox/质量分/content_html"]
+    G --> I["LLM 抽取+校验<br/>(规划中)"]
+    I --> J["结构化 ESG 数据集<br/>JSON / 入库"]
 ```
 
 ---
@@ -28,12 +29,12 @@ flowchart LR
 | 阶段 | 算力 | 输入 | 处理 | 输出 |
 |---|---|---|---|---|
 | S0 输入 | - | `list_a/b/c`（PDF 列表） | 切分列表、均分任务 | 每 job 一个列表 |
-| S1 渲染 | CPU ×5 | PDF | 渲染 2598×3484 高清页图 | 页图（内存/临时） |
-| S2 区块检测 | CPU | 页图 | 文本块 / 表格块检测（启发式，**图表/图片可能误报为表**） | 文本块、表格块 |
-| S2b 文本过滤 | CPU | 文本块 | `_is_noise_line` + `_has_meaningful_numbers` 正则 | 含数字的文本块 |
-| S3 表格 OCR | GPU | 表格块 | Chandra OCR（batch=16） | OCR 结果（bbox/parse_quality/content_html） |
-| S3b 缓存 | - | OCR 结果 | 写入 `chandra_ocr_2/<pdf>/<pdf>_ocr_output.json`（**以此判完成/去重**） | OCR 缓存 |
-| S4 数字输出 | - | 文本块 + 表格 OCR | 组装 `numeric_extracts/<pdf>/numeric_blocks.json` | **最终数字结果** |
+| S1 抽取+渲染 | CPU ×5 | PDF | ① PyMuPDF 抽纯文本（段落、表格页检测用）；② 整页渲染 2598×3484 | paragraphs.json + 整页图 page_XXX.png |
+| S2 表格页检测 | CPU | PDF 纯文本 | `_detect_report_table_pages` 文本启发式判定**哪些页**含表格（**页面级**，非 bbox；图表页也可能命中） | 表格页列表 |
+| S2b 文本过滤 | CPU | paragraphs.json | `_is_noise_line` + `_has_meaningful_numbers` 正则 | 含数字的文本块 |
+| S3 整页 OCR | GPU | 表格页**整页图** | Chandra OCR 整页（batch=16） | 整页 OCR 结果（html/chunks/parse_quality） |
+| S3b 表格拆分 | CPU | OCR chunks + 整页图 | OCR **后**按 chunk bbox 裁每张表留档（`page_XXX_table_NN.png`），生成 table_block_id/bbox | chandra_ocr_2 缓存 + 表格裁剪图 |
+| S4 数字输出 | - | 文本块 + 表格页整页 HTML | 组装 `numeric_extracts/<pdf>/numeric_blocks.json` | **最终数字结果** |
 | S5 LLM（规划） | GPU/API | numeric_blocks + OCR 缓存 | 结构化抽取、标准化、校验 | 结构化 ESG 数据集 |
 
 **横切机制**：GPU 健康追踪（`/tmp/gpu_health_status.json`）+ PDF 黑名单（`/tmp/pdf_blacklist.json`）崩溃止损；Slurm QoS 限 16 CPU/用户（3 job × 5 = 15 ≤ 16）；每 job 1 张 GPU + 1 主进程 + 5 数据 worker。
