@@ -1,118 +1,46 @@
-# quantitative_variables.json 审阅版
+# quantitative_variables.json 审阅版（id 按 ESG 数字升序，2026-08-02）
 
-> 共 **33 条定量指标**；
+> 共 **33 条定量指标**；variables = `{extractable, computed}`（2026-08-01 已删 all；computed 为派生变量，不进 LLM）。
 
-## 汇总（维度/类别合并）
+## 汇总（按 id：E→S→G，数字升序）
 
 <table>
-<thead><tr><th>维度</th><th>类别</th><th>id</th><th>指标</th><th>extractable</th></tr></thead>
+<thead><tr><th>维度</th><th>id</th><th>指标</th><th>extractable</th><th>computed</th></tr></thead>
 <tbody>
-<tr><td rowspan="3">E 环境</td><td rowspan="3">废弃物与污染物管理</td><td>E2.2.1</td><td>有害废弃物</td><td>4</td></tr>
-<tr><td>E2.2.2</td><td>非有害废弃物</td><td>4</td></tr>
-<tr><td>E2.2.3</td><td>废弃物回收率</td><td>4</td></tr>
-<tr><td rowspan="4">E 环境</td><td rowspan="4">水资源管理</td><td>E2.1.1</td><td>取水量/消耗量</td><td>4</td></tr>
-<tr><td>E2.1.2</td><td>水资源压力暴露</td><td>5</td></tr>
-<tr><td>E2.1.3</td><td>废水排放/处理</td><td>5</td></tr>
-<tr><td>E2.1.4</td><td>水循环利用率</td><td>4</td></tr>
-<tr><td rowspan="2">E 环境</td><td rowspan="2">温室气体 (GHG) 排放管理</td><td>E1.1.1</td><td>Scope 1 &amp; Scope 2 排放</td><td>5</td></tr>
-<tr><td>E1.1.2</td><td>Scope 3 排放</td><td>3</td></tr>
-<tr><td rowspan="1">E 环境</td><td rowspan="1">环境合规与管理体系</td><td>E5.1.1</td><td>ISO 14001 认证</td><td>4</td></tr>
-<tr><td rowspan="1">E 环境</td><td rowspan="1">碳转型与策略</td><td>E1.4.3</td><td>气候相关资本支出（CAPEX）</td><td>4</td></tr>
-<tr><td rowspan="3">E 环境</td><td rowspan="3">能源管理</td><td>E1.3.1</td><td>能源消耗总量</td><td>4</td></tr>
-<tr><td>E1.3.2</td><td>能源效率/强度</td><td>4</td></tr>
-<tr><td>E1.3.3</td><td>可再生能源使用比例</td><td>5</td></tr>
-<tr><td rowspan="1">G 治理</td><td rowspan="1">反腐败与合规</td><td>G4.1.2</td><td>反贿赂/反贪污培训</td><td>3</td></tr>
-<tr><td rowspan="2">G 治理</td><td rowspan="2">多元化</td><td>G1.2.1</td><td>性别多样性</td><td>8</td></tr>
-<tr><td>G1.2.2</td><td>年龄多样性</td><td>8</td></tr>
-<tr><td rowspan="1">G 治理</td><td rowspan="1">董事会结构与独立性</td><td>G1.1.1</td><td>董事独立性占比</td><td>5</td></tr>
-<tr><td rowspan="1">S 社会</td><td rowspan="1">产品质量与安全</td><td>S2.2.4</td><td>质量管理体系（ISO 9001）</td><td>4</td></tr>
-<tr><td rowspan="1">S 社会</td><td rowspan="1">供应商劳工标准</td><td>S5.1.2</td><td>供应商社会审计</td><td>6</td></tr>
-<tr><td rowspan="1">S 社会</td><td rowspan="1">供应链安全</td><td>S5.2.1</td><td>供应商合规监控</td><td>6</td></tr>
-<tr><td rowspan="3">S 社会</td><td rowspan="3">劳动实践与雇佣质量</td><td>S1.1.1</td><td>员工流失率</td><td>5</td></tr>
-<tr><td>S1.1.2</td><td>员工参与度/满意度调查</td><td>8</td></tr>
-<tr><td>S1.1.3</td><td>薪酬公平性（性别薪酬差距）</td><td>5</td></tr>
-<tr><td rowspan="1">S 社会</td><td rowspan="1">培训与发展</td><td>S1.3.1</td><td>人均培训小时数</td><td>13</td></tr>
-<tr><td rowspan="1">S 社会</td><td rowspan="1">数据安全与隐私保护</td><td>S2.1.3</td><td>数据泄露事件记录</td><td>4</td></tr>
-<tr><td rowspan="1">S 社会</td><td rowspan="1">社区关系与发展</td><td>S3.1.2</td><td>慈善捐赠/公益投入</td><td>6</td></tr>
-<tr><td rowspan="4">S 社会</td><td rowspan="4">职业健康与安全 (OHS)</td><td>S1.2.1</td><td>损工工伤率（LTIR）</td><td>8</td></tr>
-<tr><td>S1.2.2</td><td>死亡事故披露</td><td>4</td></tr>
-<tr><td>S1.2.3</td><td>职业病率</td><td>7</td></tr>
-<tr><td>S1.2.6</td><td>安全培训</td><td>5</td></tr>
-<tr><td rowspan="2">S 社会</td><td rowspan="2">负责任营销与福利</td><td>S2.3.2</td><td>客户满意度</td><td>6</td></tr>
-<tr><td>S2.3.3</td><td>客户投诉处理</td><td>8</td></tr>
+<tr><td rowspan="14">E 环境</td><td>E1.1.1</td><td>Scope 1 &amp; Scope 2 排放</td><td>5</td><td>4</td></tr>
+<tr><td>E1.1.2</td><td>Scope 3 排放</td><td>3</td><td>5</td></tr>
+<tr><td>E1.3.1</td><td>能源消耗总量</td><td>4</td><td>4</td></tr>
+<tr><td>E1.3.2</td><td>能源效率/强度</td><td>4</td><td>4</td></tr>
+<tr><td>E1.3.3</td><td>可再生能源使用比例</td><td>5</td><td>2</td></tr>
+<tr><td>E1.4.3</td><td>气候相关资本支出（CAPEX）</td><td>4</td><td>2</td></tr>
+<tr><td>E2.1.1</td><td>取水量/消耗量</td><td>4</td><td>4</td></tr>
+<tr><td>E2.1.2</td><td>水资源压力暴露</td><td>5</td><td>2</td></tr>
+<tr><td>E2.1.3</td><td>废水排放/处理</td><td>5</td><td>4</td></tr>
+<tr><td>E2.1.4</td><td>水循环利用率</td><td>4</td><td>3</td></tr>
+<tr><td>E2.2.1</td><td>有害废弃物</td><td>4</td><td>5</td></tr>
+<tr><td>E2.2.2</td><td>非有害废弃物</td><td>4</td><td>5</td></tr>
+<tr><td>E2.2.3</td><td>废弃物回收率</td><td>4</td><td>2</td></tr>
+<tr><td>E5.1.1</td><td>ISO 14001 认证</td><td>4</td><td>2</td></tr>
+<tr><td rowspan="15">S 社会</td><td>S1.1.1</td><td>员工流失率</td><td>5</td><td>3</td></tr>
+<tr><td>S1.1.2</td><td>员工参与度/满意度调查</td><td>8</td><td>4</td></tr>
+<tr><td>S1.1.3</td><td>薪酬公平性（性别薪酬差距）</td><td>5</td><td>2</td></tr>
+<tr><td>S1.2.1</td><td>损工工伤率（LTIR）</td><td>8</td><td>4</td></tr>
+<tr><td>S1.2.2</td><td>死亡事故披露</td><td>4</td><td>5</td></tr>
+<tr><td>S1.2.3</td><td>职业病率</td><td>7</td><td>5</td></tr>
+<tr><td>S1.2.6</td><td>安全培训</td><td>5</td><td>4</td></tr>
+<tr><td>S1.3.1</td><td>人均培训小时数</td><td>13</td><td>5</td></tr>
+<tr><td>S2.1.3</td><td>数据泄露事件记录</td><td>4</td><td>2</td></tr>
+<tr><td>S2.2.4</td><td>质量管理体系（ISO 9001）</td><td>4</td><td>3</td></tr>
+<tr><td>S2.3.2</td><td>客户满意度</td><td>6</td><td>4</td></tr>
+<tr><td>S2.3.3</td><td>客户投诉处理</td><td>8</td><td>3</td></tr>
+<tr><td>S3.1.2</td><td>慈善捐赠/公益投入</td><td>6</td><td>3</td></tr>
+<tr><td>S5.1.2</td><td>供应商社会审计</td><td>6</td><td>4</td></tr>
+<tr><td>S5.2.1</td><td>供应商合规监控</td><td>6</td><td>3</td></tr>
+<tr><td rowspan="4">G 治理</td><td>G1.1.1</td><td>董事独立性占比</td><td>5</td><td>2</td></tr>
+<tr><td>G1.2.1</td><td>性别多样性</td><td>8</td><td>4</td></tr>
+<tr><td>G1.2.2</td><td>年龄多样性</td><td>8</td><td>3</td></tr>
+<tr><td>G4.1.2</td><td>反贿赂/反贪污培训</td><td>3</td><td>2</td></tr>
 </tbody></table>
-
-## E2.2.1｜有害废弃物
-
-**维度/类别**：E 环境 / 废弃物与污染物管理
-
-**extractable（4）**：
-1. Hazardous Waste Generated (Total weight of hazardous waste)
-2. Industry Average Hazardous Waste Intensity value
-3. Hazardous Waste Intensity last year
-4. Hazardous Waste Intensity this year
-
-## E2.2.2｜非有害废弃物
-
-**维度/类别**：E 环境 / 废弃物与污染物管理
-
-**extractable（4）**：
-1. Non-hazardous Waste Generated (Total weight of non-hazardous waste)
-2. Industry Average Non-hazardous Waste Intensity value
-3. Non-hazardous Waste Intensity last year
-4. Non-hazardous Waste Intensity this year
-
-## E2.2.3｜废弃物回收率
-
-**维度/类别**：E 环境 / 废弃物与污染物管理
-
-**extractable（4）**：
-1. Waste Recycled and Reused (Total weight diverted from disposal)
-2. Total Waste Generated (Total weight of all waste produced)
-3. Waste Recycling Rate last year
-4. Waste Recycling Rate this year
-
-## E2.1.1｜取水量/消耗量
-
-**维度/类别**：E 环境 / 水资源管理
-
-**extractable（4）**：
-1. Total Water Withdrawal (from all sources in m³)
-2. Industry Average Water Intensity value
-3. Water Intensity last year
-4. Water Intensity this year
-
-## E2.1.2｜水资源压力暴露
-
-**维度/类别**：E 环境 / 水资源管理
-
-**extractable（5）**：
-1. Water Withdrawal in High Water Stress Areas
-2. Total Water Withdrawal
-3. Exposure Ratio of Water Stress last year
-4. Exposure Ratio of Water Stress this year
-5. Number of Facilities in Water Stressed Areas
-
-## E2.1.3｜废水排放/处理
-
-**维度/类别**：E 环境 / 水资源管理
-
-**extractable（5）**：
-1. Total Wastewater Discharge (in m3)
-2. Amount of Key Pollutants (e.g
-3. COD or NH3-N in kg)
-4. Pollutant Intensity last year
-5. Pollutant Intensity this year
-
-## E2.1.4｜水循环利用率
-
-**维度/类别**：E 环境 / 水资源管理
-
-**extractable（4）**：
-1. Recycled Water Volume (Volume of water reused or recycled)
-2. Total Water Withdrawal (Amount of fresh water taken from sources)
-3. Water Recycled Ratio last year
-4. Water Recycled Ratio this year
 
 ## E1.1.1｜Scope 1 & Scope 2 排放
 
@@ -125,6 +53,12 @@
 4. greenhouse gas emission of Scope 2 (indirect emissions)
 5. Scope 1 and Scope 2 GHG emission intensity
 
+**computed（4）**：
+1. revenue（需从外部金融数据库获取）
+2. emission intensity of Scope1&2
+3. benchmark score in Scope1&2
+4. improvement rate of Scope 1&2
+
 ## E1.1.2｜Scope 3 排放
 
 **维度/类别**：E 环境 / 温室气体 (GHG) 排放管理
@@ -134,25 +68,12 @@
 2. industry average emission intensity value of Scope 3
 3. number of Scope 3 category disclosed
 
-## E5.1.1｜ISO 14001 认证
-
-**维度/类别**：E 环境 / 环境合规与管理体系
-
-**extractable（4）**：
-1. Revenue/Sites Covered by ISO 14001
-2. Total Group Revenue/Sites
-3. ISO 14001 Coverage Ratio last year
-4. ISO 14001 Coverage Ratio this year
-
-## E1.4.3｜气候相关资本支出（CAPEX）
-
-**维度/类别**：E 环境 / 碳转型与策略
-
-**extractable（4）**：
-1. Climate-related CAPEX (investment in emission reduction and efficiency)
-2. Total CAPEX (annual total capital expenditure)
-3. Climate-related CAPEX Ratio last year
-4. Climate-related CAPEX Ratio this year
+**computed（5）**：
+1. revenue（需从外部金融数据库获取）
+2. emission intensity of Scope3
+3. benchmark score in Scope3
+4. improvement rate of Scope 3
+5. coverage rate of Scope 3
 
 ## E1.3.1｜能源消耗总量
 
@@ -164,6 +85,12 @@
 3. Standard Coal Equivalent (tce) conversion factors for each energy type
 4. Industry Average Energy Intensity value
 
+**computed（4）**：
+1. Revenue (per million units of currency)（需从外部金融数据库获取）
+2. Energy Intensity
+3. Benchmark Ratio of Energy Intensity
+4. Improvement Rate of Energy Intensity
+
 ## E1.3.2｜能源效率/强度
 
 **维度/类别**：E 环境 / 能源管理
@@ -173,6 +100,12 @@
 2. Industry Average Energy Intensity value
 3. Energy Intensity last year
 4. Energy Intensity this year
+
+**computed（4）**：
+1. Business Activity Output (Revenue or Production volume)（需从外部金融数据库获取）
+2. Energy Intensity (Consumption per unit of output)
+3. Benchmark Ratio of Energy Intensity
+4. Improvement Rate of Energy Intensity
 
 ## E1.3.3｜可再生能源使用比例
 
@@ -185,87 +118,148 @@
 4. Renewable Energy Ratio last year
 5. Renewable Energy Ratio this year
 
-## G4.1.2｜反贿赂/反贪污培训
+**computed（2）**：
+1. Renewable Energy Ratio
+2. Increase in Renewable Energy Ratio
 
-**维度/类别**：G 治理 / 反腐败与合规
+## E1.4.3｜气候相关资本支出（CAPEX）
 
-**extractable（3）**：
-1. DIRECTOR_TRAINING (Director Training Score)
-2. COVERAGE (Employee Training Coverage Rate)
-3. FREQUENCY (Training Frequency Score)
-
-## G1.2.1｜性别多样性
-
-**维度/类别**：G 治理 / 多元化
-
-**extractable（8）**：
-1. FEMALE_COUNT (Number of Female Directors)
-2. BOARD_SIZE (Total Number of Board Directors)
-3. Total Number of Employees
-4. Total Number of Male Employees
-5. Total Number of Female Employees
-6. Female Employee Ratio (%)
-7. Number of Female in Senior Management
-8. Female Senior Management Ratio (%)
-
-## G1.2.2｜年龄多样性
-
-**维度/类别**：G 治理 / 多元化
-
-**extractable（8）**：
-1. AVG_AGE (Average Age of Board Members)
-2. STDEV_AGE (Standard Deviation of Board Age)
-3. Number of Employees aged 30 or below
-4. Number of Employees aged 31-50
-5. Number of Employees aged 51 or above
-6. Number of Senior Management
-7. Number of Middle Management
-8. Number of Frontline/General Employees
-
-## G1.1.1｜董事独立性占比
-
-**维度/类别**：G 治理 / 董事会结构与独立性
-
-**extractable（5）**：
-1. Number of Independent Directors
-2. Total Number of Board Members
-3. Board Independence Ratio last year
-4. Board Independence Ratio this year
-5. Average Tenure of Independent Directors (Supplemental info)
-
-## S2.2.4｜质量管理体系（ISO 9001）
-
-**维度/类别**：S 社会 / 产品质量与安全
+**维度/类别**：E 环境 / 碳转型与策略
 
 **extractable（4）**：
-1. Revenue/Sites Covered by ISO 9001
+1. Climate-related CAPEX (investment in emission reduction and efficiency)
+2. Total CAPEX (annual total capital expenditure)
+3. Climate-related CAPEX Ratio last year
+4. Climate-related CAPEX Ratio this year
+
+**computed（2）**：
+1. Climate-related CAPEX Ratio
+2. Increase in Climate-related CAPEX Ratio
+
+## E2.1.1｜取水量/消耗量
+
+**维度/类别**：E 环境 / 水资源管理
+
+**extractable（4）**：
+1. Total Water Withdrawal (from all sources in m³)
+2. Industry Average Water Intensity value
+3. Water Intensity last year
+4. Water Intensity this year
+
+**computed（4）**：
+1. Revenue (per million units of currency)（需从外部金融数据库获取）
+2. Water Intensity (Withdrawal per unit of output)
+3. Benchmark Ratio of Water Intensity
+4. Improvement Rate of Water Intensity
+
+## E2.1.2｜水资源压力暴露
+
+**维度/类别**：E 环境 / 水资源管理
+
+**extractable（5）**：
+1. Water Withdrawal in High Water Stress Areas
+2. Total Water Withdrawal
+3. Exposure Ratio of Water Stress last year
+4. Exposure Ratio of Water Stress this year
+5. Number of Facilities in Water Stressed Areas
+
+**computed（2）**：
+1. Exposure Ratio of Water Stress
+2. Trend in Exposure Ratio
+
+## E2.1.3｜废水排放/处理
+
+**维度/类别**：E 环境 / 水资源管理
+
+**extractable（5）**：
+1. Total Wastewater Discharge (in m3)
+2. Amount of Key Pollutants (e.g
+3. COD or NH3-N in kg)
+4. Pollutant Intensity last year
+5. Pollutant Intensity this year
+
+**computed（4）**：
+1. Revenue (per million units of currency)（需从外部金融数据库获取）
+2. Pollutant Intensity (Amount of Key Pollutants / Revenue)
+3. Improvement Rate of Pollutant Intensity
+4. Wastewater Treatment Rate
+
+## E2.1.4｜水循环利用率
+
+**维度/类别**：E 环境 / 水资源管理
+
+**extractable（4）**：
+1. Recycled Water Volume (Volume of water reused or recycled)
+2. Total Water Withdrawal (Amount of fresh water taken from sources)
+3. Water Recycled Ratio last year
+4. Water Recycled Ratio this year
+
+**computed（3）**：
+1. Total Water Consumption/Usage (Recycled Water + Withdrawal)
+2. Water Recycled Ratio
+3. Improvement Rate of Water Recycled Ratio
+
+## E2.2.1｜有害废弃物
+
+**维度/类别**：E 环境 / 废弃物与污染物管理
+
+**extractable（4）**：
+1. Hazardous Waste Generated (Total weight of hazardous waste)
+2. Industry Average Hazardous Waste Intensity value
+3. Hazardous Waste Intensity last year
+4. Hazardous Waste Intensity this year
+
+**computed（5）**：
+1. Revenue (per million units of currency)（需从外部金融数据库获取）
+2. Hazardous Waste Intensity (Generated weight / Revenue)
+3. Benchmark Ratio of Hazardous Waste Intensity
+4. Improvement Rate of Hazardous Waste Intensity
+5. Hazardous Waste Compliance Disposal Rate
+
+## E2.2.2｜非有害废弃物
+
+**维度/类别**：E 环境 / 废弃物与污染物管理
+
+**extractable（4）**：
+1. Non-hazardous Waste Generated (Total weight of non-hazardous waste)
+2. Industry Average Non-hazardous Waste Intensity value
+3. Non-hazardous Waste Intensity last year
+4. Non-hazardous Waste Intensity this year
+
+**computed（5）**：
+1. Revenue (per million units of currency)（需从外部金融数据库获取）
+2. Non-hazardous Waste Intensity (Generated weight / Revenue)
+3. Benchmark Ratio of Non-hazardous Waste Intensity
+4. Improvement Rate of Non-hazardous Waste Intensity
+5. Coverage Ratio of Waste Classification Management
+
+## E2.2.3｜废弃物回收率
+
+**维度/类别**：E 环境 / 废弃物与污染物管理
+
+**extractable（4）**：
+1. Waste Recycled and Reused (Total weight diverted from disposal)
+2. Total Waste Generated (Total weight of all waste produced)
+3. Waste Recycling Rate last year
+4. Waste Recycling Rate this year
+
+**computed（2）**：
+1. Waste Recycling Rate
+2. Improvement Rate of Waste Recycling Rate
+
+## E5.1.1｜ISO 14001 认证
+
+**维度/类别**：E 环境 / 环境合规与管理体系
+
+**extractable（4）**：
+1. Revenue/Sites Covered by ISO 14001
 2. Total Group Revenue/Sites
-3. ISO 9001 Coverage Ratio last year
-4. ISO 9001 Coverage Ratio this year
+3. ISO 14001 Coverage Ratio last year
+4. ISO 14001 Coverage Ratio this year
 
-## S5.1.2｜供应商社会审计
-
-**维度/类别**：S 社会 / 供应商劳工标准
-
-**extractable（6）**：
-1. Number of Audited Suppliers (Self-assessment or On-site)
-2. Total Number of Active Suppliers
-3. Number of High-risk Suppliers Identified
-4. Number of High-risk Suppliers Audited on-site
-5. Total Number of Non-conformities (NCs) Found
-6. Number of NCs Closed per Schedule
-
-## S5.2.1｜供应商合规监控
-
-**维度/类别**：S 社会 / 供应链安全
-
-**extractable（6）**：
-1. Number of Suppliers Monitored Systematically
-2. Total Number of Active Suppliers
-3. Number of Compliance Alerts Triggered
-4. Total Hours/Days to Initial Response
-5. Number of High-risk Suppliers with Management Actions
-6. Total High-risk Suppliers Identified via Monitoring
+**computed（2）**：
+1. ISO 14001 Coverage Ratio
+2. Improvement Rate of ISO 14001 Coverage
 
 ## S1.1.1｜员工流失率
 
@@ -277,6 +271,11 @@
 3. Employee Turnover Rate last year
 4. Employee Turnover Rate this year
 5. Industry Average Turnover Rate value
+
+**computed（3）**：
+1. Employee Turnover Rate
+2. Benchmark Ratio of Turnover
+3. Reduction Rate of Turnover
 
 ## S1.1.2｜员工参与度/满意度调查
 
@@ -292,6 +291,12 @@
 7. Satisfaction Score last year
 8. Satisfaction Score this year
 
+**computed（4）**：
+1. Participation Rate
+2. Satisfaction Benchmark Ratio
+3. Action Plan Execution Rate
+4. Improvement Rate of Satisfaction Score
+
 ## S1.1.3｜薪酬公平性（性别薪酬差距）
 
 **维度/类别**：S 社会 / 劳动实践与雇佣质量
@@ -302,6 +307,84 @@
 3. Gender Pay Gap Ratio last year
 4. Gender Pay Gap Ratio this year
 5. Adjusted Pay Gap (by level/role)
+
+**computed（2）**：
+1. Gender Pay Gap Ratio
+2. Convergence Rate of Pay Gap
+
+## S1.2.1｜损工工伤率（LTIR）
+
+**维度/类别**：S 社会 / 职业健康与安全 (OHS)
+
+**extractable（8）**：
+1. Number of Lost Time Injuries (Excluding first aid)
+2. Number of Lost Days due to Work Injury
+3. Total Man-hours Worked (Including overtime and contractors)
+4. LTIR last year
+5. LTIR this year
+6. Industry Average LTIR value
+7. Lost Time Injury Rate (LTIR) this year
+8. Lost Time Injury Rate (LTIR) last year
+
+**computed（4）**：
+1. LTIR (Calculated based on 200
+2. 000 hours)
+3. Benchmark Ratio of LTIR
+4. Reduction Rate of LTIR
+
+## S1.2.2｜死亡事故披露
+
+**维度/类别**：S 社会 / 职业健康与安全 (OHS)
+
+**extractable（4）**：
+1. Number of Fatalities
+2. Total Man-hours Worked
+3. Industry Average FIFR value
+4. RCA Completion Score
+
+**computed（5）**：
+1. FIFR (Fatal Injury Frequency Rate per 200
+2. 000 or 1M hours)
+3. Incident Disclosure Score
+4. Red Flag Multiplier (0.5 if repeat causes found)
+5. Final Score
+
+## S1.2.3｜职业病率
+
+**维度/类别**：S 社会 / 职业健康与安全 (OHS)
+
+**extractable（7）**：
+1. New Occupational Disease Cases (Confirmed by authorized agencies)
+2. Total Number of Employees
+3. Occupational Disease Rate last year
+4. Occupational Disease Rate this year
+5. Industry Average Occupational Disease Rate value
+6. Number of Employees in Occupational Hazard Roles
+7. Number of Employees Received Health Checkups
+
+**computed（5）**：
+1. Occupational Disease Rate (per 10
+2. 000 employees)
+3. Benchmark Ratio of Occupational Disease Rate
+4. Improvement Rate
+5. Health Surveillance Coverage
+
+## S1.2.6｜安全培训
+
+**维度/类别**：S 社会 / 职业健康与安全 (OHS)
+
+**extractable（5）**：
+1. Number of Employees Trained (Including contractors)
+2. Total Number of Employees and Contractors
+3. Total Safety Training Hours (Sum of all participants' hours)
+4. Average Safety Training Hours last year
+5. Average Safety Training Hours this year
+
+**computed（4）**：
+1. Safety Training Coverage
+2. Average Safety Training Hours
+3. Improvement Rate of Training Hours
+4. Training Assessment Pass Rate
 
 ## S1.3.1｜人均培训小时数
 
@@ -322,6 +405,13 @@
 12. Number of Training Programs Completed
 13. Total Number of Training Programs Planned
 
+**computed（5）**：
+1. Average Training Hours - Male
+2. Average Training Hours - Female
+3. Total Average Training Hours (Group total)
+4. Improvement Rate of Training Hours
+5. Training Completion Rate
+
 ## S2.1.3｜数据泄露事件记录
 
 **维度/类别**：S 社会 / 数据安全与隐私保护
@@ -332,65 +422,24 @@
 3. Incident Severity Level (Weighted by regulatory impact)
 4. Disclosure Score
 
-## S3.1.2｜慈善捐赠/公益投入
+**computed（2）**：
+1. MTTR (Mean Time to Respond in hours)
+2. Remediation Completion Rate (Percentage of impacted users compensated/notified)
 
-**维度/类别**：S 社会 / 社区关系与发展
+## S2.2.4｜质量管理体系（ISO 9001）
 
-**extractable（6）**：
-1. Total Cash Donations
-2. Value of In-kind Donations (Market value of goods/services)
-3. Annual Net Profit
-4. Philanthropic Investment last year
-5. Philanthropic Investment this year
-6. Number of Beneficiaries
-
-## S1.2.1｜损工工伤率（LTIR）
-
-**维度/类别**：S 社会 / 职业健康与安全 (OHS)
-
-**extractable（8）**：
-1. Number of Lost Time Injuries (Excluding first aid)
-2. Number of Lost Days due to Work Injury
-3. Total Man-hours Worked (Including overtime and contractors)
-4. LTIR last year
-5. LTIR this year
-6. Industry Average LTIR value
-7. Lost Time Injury Rate (LTIR) this year
-8. Lost Time Injury Rate (LTIR) last year
-
-## S1.2.2｜死亡事故披露
-
-**维度/类别**：S 社会 / 职业健康与安全 (OHS)
+**维度/类别**：S 社会 / 产品质量与安全
 
 **extractable（4）**：
-1. Number of Fatalities
-2. Total Man-hours Worked
-3. Industry Average FIFR value
-4. RCA Completion Score
+1. Revenue/Sites Covered by ISO 9001
+2. Total Group Revenue/Sites
+3. ISO 9001 Coverage Ratio last year
+4. ISO 9001 Coverage Ratio this year
 
-## S1.2.3｜职业病率
-
-**维度/类别**：S 社会 / 职业健康与安全 (OHS)
-
-**extractable（7）**：
-1. New Occupational Disease Cases (Confirmed by authorized agencies)
-2. Total Number of Employees
-3. Occupational Disease Rate last year
-4. Occupational Disease Rate this year
-5. Industry Average Occupational Disease Rate value
-6. Number of Employees in Occupational Hazard Roles
-7. Number of Employees Received Health Checkups
-
-## S1.2.6｜安全培训
-
-**维度/类别**：S 社会 / 职业健康与安全 (OHS)
-
-**extractable（5）**：
-1. Number of Employees Trained (Including contractors)
-2. Total Number of Employees and Contractors
-3. Total Safety Training Hours (Sum of all participants' hours)
-4. Average Safety Training Hours last year
-5. Average Safety Training Hours this year
+**computed（3）**：
+1. ISO 9001 Coverage Ratio
+2. Improvement Rate of ISO 9001 Coverage
+3. CAPA Closure Rate (Corrective and Preventive Actions)
 
 ## S2.3.2｜客户满意度
 
@@ -403,6 +452,12 @@
 4. Satisfaction Score this year
 5. Survey Sample Size
 6. Total Active Customer Base
+
+**computed（4）**：
+1. NPS
+2. Satisfaction Benchmark Ratio
+3. Improvement Rate of Satisfaction Score
+4. Sample Coverage Ratio
 
 ## S2.3.3｜客户投诉处理
 
@@ -417,3 +472,127 @@
 6. Resolved Action Items
 7. Esolution Rate this year
 8. Resolution Rate last year
+
+**computed（3）**：
+1. Resolution Rate
+2. Escalation Rate
+3. Improvement Rate
+
+## S3.1.2｜慈善捐赠/公益投入
+
+**维度/类别**：S 社会 / 社区关系与发展
+
+**extractable（6）**：
+1. Total Cash Donations
+2. Value of In-kind Donations (Market value of goods/services)
+3. Annual Net Profit
+4. Philanthropic Investment last year
+5. Philanthropic Investment this year
+6. Number of Beneficiaries
+
+**computed（3）**：
+1. Total Philanthropic Investment (Cash + In-kind)
+2. Charity-to-Profit Ratio
+3. Growth Rate of Philanthropy
+
+## S5.1.2｜供应商社会审计
+
+**维度/类别**：S 社会 / 供应商劳工标准
+
+**extractable（6）**：
+1. Number of Audited Suppliers (Self-assessment or On-site)
+2. Total Number of Active Suppliers
+3. Number of High-risk Suppliers Identified
+4. Number of High-risk Suppliers Audited on-site
+5. Total Number of Non-conformities (NCs) Found
+6. Number of NCs Closed per Schedule
+
+**computed（4）**：
+1. Audit Coverage Ratio
+2. Corrective Action Closure Rate
+3. Improvement Rate of Audit Coverage
+4. High-risk Audit Ratio
+
+## S5.2.1｜供应商合规监控
+
+**维度/类别**：S 社会 / 供应链安全
+
+**extractable（6）**：
+1. Number of Suppliers Monitored Systematically
+2. Total Number of Active Suppliers
+3. Number of Compliance Alerts Triggered
+4. Total Hours/Days to Initial Response
+5. Number of High-risk Suppliers with Management Actions
+6. Total High-risk Suppliers Identified via Monitoring
+
+**computed（3）**：
+1. Monitoring Coverage Ratio
+2. MTTC (Mean Time to Correct)
+3. Dynamic Management Rate
+
+## G1.1.1｜董事独立性占比
+
+**维度/类别**：G 治理 / 董事会结构与独立性
+
+**extractable（5）**：
+1. Number of Independent Directors
+2. Total Number of Board Members
+3. Board Independence Ratio last year
+4. Board Independence Ratio this year
+5. Average Tenure of Independent Directors (Supplemental info)
+
+**computed（2）**：
+1. Board Independence Ratio
+2. Improvement Rate
+
+## G1.2.1｜性别多样性
+
+**维度/类别**：G 治理 / 多元化
+
+**extractable（8）**：
+1. FEMALE_COUNT (Number of Female Directors)
+2. BOARD_SIZE (Total Number of Board Directors)
+3. Total Number of Employees
+4. Total Number of Male Employees
+5. Total Number of Female Employees
+6. Female Employee Ratio (%)
+7. Number of Female in Senior Management
+8. Female Senior Management Ratio (%)
+
+**computed（4）**：
+1. FEMALE_PCT (Percentage of Female Directors)
+2. PCT_SCORE (Percentage Dimension Score)
+3. MASS_SCORE (Critical Mass Dimension Score)
+4. SCORE_FINAL (Final Quantitative Score)
+
+## G1.2.2｜年龄多样性
+
+**维度/类别**：G 治理 / 多元化
+
+**extractable（8）**：
+1. AVG_AGE (Average Age of Board Members)
+2. STDEV_AGE (Standard Deviation of Board Age)
+3. Number of Employees aged 30 or below
+4. Number of Employees aged 31-50
+5. Number of Employees aged 51 or above
+6. Number of Senior Management
+7. Number of Middle Management
+8. Number of Frontline/General Employees
+
+**computed（3）**：
+1. AVG_AGE_SCORE (Average Age Dimension Score)
+2. STDEV_SCORE (Age Dispersion Dimension Score)
+3. SCORE_FINAL (Final Quantitative Score)
+
+## G4.1.2｜反贿赂/反贪污培训
+
+**维度/类别**：G 治理 / 反腐败与合规
+
+**extractable（3）**：
+1. DIRECTOR_TRAINING (Director Training Score)
+2. COVERAGE (Employee Training Coverage Rate)
+3. FREQUENCY (Training Frequency Score)
+
+**computed（2）**：
+1. COVERAGE_SCORE (Employee Coverage Score)
+2. SCORE_FINAL (Final Quantitative Score)
