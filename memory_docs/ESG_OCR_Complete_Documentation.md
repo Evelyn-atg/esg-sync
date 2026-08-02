@@ -58,7 +58,7 @@ for batch_start in range(0, len(valid_pages), batch_size):
 - **GPUHealthTracker** → `/tmp/gpu_health_status.json`：`mark_gpu_unhealthy(gpu_id, err)` / `is_gpu_healthy(gpu_id)`。崩溃时记录坏卡。
 - **PDFBlacklist** → `/tmp/pdf_blacklist.json`：`add_to_blacklist(pdf, reason)` / `is_blacklisted(pdf)`。问题 PDF 自动跳过。
 
-崩溃捕获（`src/chandra_ocr_tester.py`）：捕获 `RuntimeError` 且含 `CUDA` 时，标记坏卡 → 该 PDF 入黑名单 → `raise GPUFatalError`。`numeric_extractor.py` 收到 `GPUFatalError` 后 `sampler.stop()` + 立即退出。
+崩溃捕获（`src/chandra_ocr.py`（原 chandra_ocr_tester.py，2026-08-02 更名））：捕获 `RuntimeError` 且含 `CUDA` 时，标记坏卡 → 该 PDF 入黑名单 → `raise GPUFatalError`。`numeric_extractor.py` 收到 `GPUFatalError` 后 `sampler.stop()` + 立即退出。
 
 **管理命令**
 
@@ -160,7 +160,7 @@ PDF → 表格页检测（文本特征） → Chandra OCR 批处理（GPU） →
 |------|------|
 | `main.py` | 主入口（`--step numeric_extraction --pdf_list_file <list> --force`） |
 | `numeric_extractor.py` | 数字/表格提取 + 批处理逻辑 |
-| `chandra_ocr_tester.py` | Chandra OCR 封装 + CUDA 错误捕获 |
+| `chandra_ocr.py` | Chandra OCR 封装（ChandraOCREngine）+ CUDA 错误捕获 |
 | `utils.py` | GPU 健康追踪、PDF 黑名单 |
 
 **输出目录**
