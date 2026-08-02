@@ -16,7 +16,7 @@ flowchart TB
     C --> D["numeric_extraction<br/>正则过滤文本块 + 表格页整页 OCR<br/>Datalab API / 本地 Chandra"]
     D --> E["numeric_blocks.json<br/>+ chandra_ocr_2 缓存"]
     E --> F["llm_matching<br/>Qwen-Max API<br/>数字块 → 指标变量匹配"]
-    F --> G["quantitative_results_vlm/<br/>定量分析 JSON"]
+    F --> G["quantitative_results_Qwen/<br/>定量分析 JSON"]
     G --> H["calculation<br/>Qwen-Max 公式计算"]
     H --> I["result/ 计算结果"]
     I --> L["DB 入库<br/>MySQL esg 库"]
@@ -34,9 +34,9 @@ flowchart TB
 | S3-1 渲染/检测 | `image_recognizer.py` | `_ensure_pdf_images`（渲染页图）、`_detect_report_table_pages`（表格页启发式检测）、`_load_pdf_text_content`（读文本层） | `HKEX ESG Reports/{编号}.pdf` + `extracted_text/{编号}.txt` | 渲染 `page_XXX.png`；按文本启发式判定含表格的页 | `page_images/{编号}/page_XXX.png` + 表格页清单 |
 | S3-2 OCR | `chandra_ocr.py`（ChandraOCREngine） | `_run_page_ocr_batch`（批量 OCR 入口）、`_run_page_ocr_batch_chandra_local`（本地 Chandra 后端）、`_extract_table_blocks`（按 chunk 拆表，产出 bbox/table_block_id） | `page_images/{编号}/page_XXX.png`（表格页） | 整页 OCR（**OCR_BACKEND**：Datalab API / 本地 Chandra） | OCR HTML → `chandra_ocr_2` 缓存（tables[]/page_html{}） |
 | S3-3 编排/输出 | `numeric_extractor.py` | `_is_noise_paragraph`（噪声过滤）、`_has_meaningful_numbers`（有效数字，含零值词 zero/nil/no/none）、`_extract_text_blocks`（文本块）、`_extract_table_blocks`（表格块组装）、`_ocr_table_pages`（OCR 调度+缓存命中）、`_update_ocr_cache`（写 RICH 缓存） | `paragraphs/{编号}/paragraphs.json` + S3-2 OCR 结果 | 文本块过滤 + 组装 text/table 块 | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
-| S4 **llm_matching** | `llm_variable_matcher.py` | `_load_variable_list`（加载 extractable）、`match_variables_for_pdf`（入口）、`_build_variable_reference`（变量清单）、`_build_batch_prompt`（组 prompt） | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**；prompt 不含 keywords，2026-08-02 起） | **Qwen-Max API** 把数字块匹配到指标变量（智能分批：小块 ≤3/批、大表格独占一批、批 ≤15000 字符；单块超 12000 字符截前 8000+后 4000；超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
-| S5 calculation | `calculator.py` | `calculate_variables` / `call_qwen_max_for_calculation` | `quantitative_results_vlm/{编号}/..._quantitative_analysis.json` + 公式定义 | Qwen-Max 公式计算/推导 | `calculation_results/{编号}/{编号}_calculation_result.json` |
-| S6 入库 | `DB/*.py` | — | `quantitative_results_vlm/` + `calculation_results/` | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
+| S4 **llm_matching** | `llm_variable_matcher.py` | `_load_variable_list`（加载 extractable）、`match_variables_for_pdf`（入口）、`_build_variable_reference`（变量清单）、`_build_batch_prompt`（组 prompt） | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**；prompt 不含 keywords，2026-08-02 起） | **Qwen-Max API** 把数字块匹配到指标变量（智能分批：小块 ≤3/批、大表格独占一批、批 ≤15000 字符；单块超 12000 字符截前 8000+后 4000；超时/重试） | `quantitative_results_Qwen/{编号}/{编号}_quantitative_analysis.json` |
+| S5 calculation | `calculator.py` | `calculate_variables` / `call_qwen_max_for_calculation` | `quantitative_results_Qwen/{编号}/..._quantitative_analysis.json` + 公式定义 | Qwen-Max 公式计算/推导 | `calculation_results/{编号}/{编号}_calculation_result.json` |
+| S6 入库 | `DB/*.py` | — | `quantitative_results_Qwen/` + `calculation_results/` | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
 
 **遗留文件**：
 - `qwen_vl_local.py`：**DEPRECATED**（旧本地 Qwen-VL/7B 路径，已被 API 取代）
@@ -81,7 +81,7 @@ flowchart TB
 
 | 步骤 | 输入 | 处理（API） | 输出 |
 |---|---|---|---|
-| llm_matching | `numeric_blocks.json` + 变量定义（仅 extractable） | **Qwen-Max**（dashscope 文本生成）智能批匹配（小块 ≤3/批、大表格独占、批 ≤15000 字符；单块截断 12000 字符） | `quantitative_results_vlm/{编号}/_quantitative_analysis.json` |
+| llm_matching | `numeric_blocks.json` + 变量定义（仅 extractable） | **Qwen-Max**（dashscope 文本生成）智能批匹配（小块 ≤3/批、大表格独占、批 ≤15000 字符；单块截断 12000 字符） | `quantitative_results_Qwen/{编号}/_quantitative_analysis.json` |
 | calculation | 定量分析 JSON + 公式 | **Qwen-Max** 公式计算/推导（Scope 拆分、多年份、组件聚合） | `calculation_results/{编号}/_calculation_result.json` |
 | 校验 | GT 表 | `gt_compare.py` 打分 | 匹配率报告（曾 70/70） |
 
