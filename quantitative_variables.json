@@ -416,8 +416,7 @@
       "variables": {
         "extractable": [
           "Total Wastewater Discharge (in m3)",
-          "Amount of Key Pollutants (e.g",
-          "COD or NH3-N in kg)",
+          "Amount of Key Pollutants (e.g COD or NH3-N in kg)",
           "Pollutant Intensity last year",
           "Pollutant Intensity this year"
         ]
