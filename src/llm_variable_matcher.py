@@ -59,8 +59,6 @@ class LLMVariableMatcher:
                 "metric": indicator.get("metric", ""),
                 "category": indicator.get("category", ""),
                 "variables": extractable,
-                "keywords_cn": indicator.get("keywords", {}).get("zh_cn", []),
-                "keywords_en": indicator.get("keywords", {}).get("en", []),
             })
 
         self._variable_list_cache = variable_list
@@ -73,10 +71,7 @@ class LLMVariableMatcher:
         lines = []
         for item in variable_list:
             var_str = "; ".join(item["variables"])
-            # 英文关键词在前(报告多为英文，英文锚点最有用)，中文在后
-            kw_all = list(item["keywords_en"]) + list(item["keywords_cn"])
-            kw_str = ", ".join(kw_all)
-            lines.append(f"- {item['id']} {item['metric']}: variables=[{var_str}], keywords=[{kw_str}]")
+            lines.append(f"- {item['id']} {item['metric']}: variables=[{var_str}]")
         return "\n".join(lines)
 
     def _truncate_block_content(self, content: str) -> str:
