@@ -28,14 +28,16 @@ flowchart TB
 
 ## 2. 各阶段说明（当前主链路）
 
-| 阶段 | 模块 | 输入 | 处理 | 输出 |
-|---|---|---|---|---|
-| S1 pdf_extraction | `pdf_extractor.py` (PyMuPDF) | `HKEX ESG Reports/{编号}.pdf` | PyMuPDF 抽每页文本层（可选渲染页图） | `extracted_text/{编号}.txt`（可选 `page_images/{编号}/page_XXX.png`） |
-| S2 text_processing | `text_processor.py` | `extracted_text/{编号}.txt` | 按 `<PAGE n>` 标记切页 → 空行切段 → >20 字符保留 | `paragraphs/{编号}/paragraphs.json` |
-| S3 numeric_extraction | `image_recognizer.py`（渲染/表格页检测）→ `chandra_ocr.py`（OCR 引擎，ChandraOCREngine）→ `numeric_extractor.py`（编排/写缓存） | ①`paragraphs/{编号}/paragraphs.json`（文本块路径）②`extracted_text/{编号}.txt`（表格页检测/回退）③`HKEX ESG Reports/{编号}.pdf` → `page_images/{编号}/page_XXX.png`（渲染后 OCR）④`chandra_ocr_2` 缓存（命中跳过 OCR） | 文本块过滤（`_is_noise_paragraph` 噪声 / `_has_meaningful_numbers` 有效数字，含英文零值词 zero/nil/no/none）+ 表格页整页 OCR（**OCR_BACKEND 可配**：Datalab API / 本地 Chandra） | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
-| S4 **llm_matching** | `llm_variable_matcher.py` | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**；prompt 不含 keywords，2026-08-02 起） | **Qwen-Max API** 把数字块匹配到指标变量（智能分批：小块 ≤3/批、大表格独占一批、批 ≤15000 字符；单块超 12000 字符截前 8000+后 4000；超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
-| S5 calculation | `calculator.py` | `quantitative_results_vlm/{编号}/..._quantitative_analysis.json` + 公式定义 | Qwen-Max 公式计算/推导 | `calculation_results/{编号}/{编号}_calculation_result.json` |
-| S6 入库 | `DB/*.py` | `quantitative_results_vlm/` + `calculation_results/` | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
+| 阶段 | 模块 | 主要函数 | 输入 | 处理 | 输出 |
+|---|---|---|---|---|---|
+| S1 pdf_extraction | `pdf_extractor.py` (PyMuPDF) | `extract_text_from_pdf`（逐页 get_text） | `HKEX ESG Reports/{编号}.pdf` | PyMuPDF 抽每页文本层（可选渲染页图） | `extracted_text/{编号}.txt`（可选 `page_images/{编号}/page_XXX.png`） |
+| S2 text_processing | `text_processor.py` | `split_into_paragraphs` / `process_text_file` | `extracted_text/{编号}.txt` | 按 `<PAGE n>` 标记切页 → 空行切段 → >20 字符保留 | `paragraphs/{编号}/paragraphs.json` |
+| S3-1 渲染/检测 | `image_recognizer.py` | `_ensure_pdf_images`（渲染页图）、`_detect_report_table_pages`（表格页启发式检测）、`_load_pdf_text_content`（读文本层） | `HKEX ESG Reports/{编号}.pdf` + `extracted_text/{编号}.txt` | 渲染 `page_XXX.png`；按文本启发式判定含表格的页 | `page_images/{编号}/page_XXX.png` + 表格页清单 |
+| S3-2 OCR | `chandra_ocr.py`（ChandraOCREngine） | `_run_page_ocr_batch`（批量 OCR 入口）、`_run_page_ocr_batch_chandra_local`（本地 Chandra 后端）、`_extract_table_blocks`（按 chunk 拆表，产出 bbox/table_block_id） | `page_images/{编号}/page_XXX.png`（表格页） | 整页 OCR（**OCR_BACKEND**：Datalab API / 本地 Chandra） | OCR HTML → `chandra_ocr_2` 缓存（tables[]/page_html{}） |
+| S3-3 编排/输出 | `numeric_extractor.py` | `_is_noise_paragraph`（噪声过滤）、`_has_meaningful_numbers`（有效数字，含零值词 zero/nil/no/none）、`_extract_text_blocks`（文本块）、`_extract_table_blocks`（表格块组装）、`_ocr_table_pages`（OCR 调度+缓存命中）、`_update_ocr_cache`（写 RICH 缓存） | `paragraphs/{编号}/paragraphs.json` + S3-2 OCR 结果 | 文本块过滤 + 组装 text/table 块 | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
+| S4 **llm_matching** | `llm_variable_matcher.py` | `_load_variable_list`（加载 extractable）、`match_variables_for_pdf`（入口）、`_build_variable_reference`（变量清单）、`_build_batch_prompt`（组 prompt） | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**；prompt 不含 keywords，2026-08-02 起） | **Qwen-Max API** 把数字块匹配到指标变量（智能分批：小块 ≤3/批、大表格独占一批、批 ≤15000 字符；单块超 12000 字符截前 8000+后 4000；超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
+| S5 calculation | `calculator.py` | `calculate_variables` / `call_qwen_max_for_calculation` | `quantitative_results_vlm/{编号}/..._quantitative_analysis.json` + 公式定义 | Qwen-Max 公式计算/推导 | `calculation_results/{编号}/{编号}_calculation_result.json` |
+| S6 入库 | `DB/*.py` | — | `quantitative_results_vlm/` + `calculation_results/` | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
 
 **并存/遗留链路**（仍可单独跑，非当前主线）：
 - A 线（旧定量）：`image_recognizer.py` 直接喂**整页 PNG** 给 Qwen-VL-Plus API → `quantitative_results_vlm/`
