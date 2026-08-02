@@ -4,7 +4,7 @@ to match them against the full ESG indicator variable list.
 
 Input:  numeric_extracts/<pdf_name>/numeric_blocks.json
 Config: quantitative_variables.json (quantitative variable definitions per indicator)
-Output: quantitative_results_vlm/<pdf_name>/<pdf_name>_quantitative_analysis.json
+Output: quantitative_results_Qwen/<pdf_name>/<pdf_name>_quantitative_analysis.json
         (compatible with existing calculator downstream)
 """
 
