@@ -10,7 +10,7 @@
 ## 1. 全流程总览图
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["PDF 列表<br/>HKEX ESG Reports/*.pdf"] --> B["pdf_extraction<br/>PyMuPDF 抽文本/可选渲染"]
     B --> C["text_processing<br/>切分段落 paragraphs.json"]
     C --> D["numeric_extraction<br/>正则过滤文本块 + 表格页整页 OCR<br/>Datalab API / 本地 Chandra"]
