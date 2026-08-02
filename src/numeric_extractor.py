@@ -168,8 +168,8 @@ class NumericExtractor:
         except json.JSONDecodeError:
             return False
 
-    def _is_noise_line(self, text: str) -> bool:
-        """Check if a text block is just page number, TOC, or header/footer noise."""
+    def _is_noise_paragraph(self, text: str) -> bool:
+        """Check if a paragraph is just page number, TOC, or header/footer noise."""
         stripped = text.strip()
         if not stripped:
             return True
@@ -221,7 +221,7 @@ class NumericExtractor:
         for para in paragraphs:
             text = para.get('text', '')
 
-            if self._is_noise_line(text):
+            if self._is_noise_paragraph(text):
                 continue
 
             if not self._has_meaningful_numbers(text):
