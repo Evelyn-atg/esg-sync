@@ -1,6 +1,6 @@
 # quantitative_variables.json 审阅版
 
-> 共 **33 条定量指标**；`variables.all` 已于 2026-08-01 删除。汇总表为 HTML 表格（维度/类别合并单元格，GitHub 可渲染）。
+> 共 **33 条定量指标**；
 
 ## 汇总（维度/类别合并）
 
