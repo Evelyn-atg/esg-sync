@@ -22,7 +22,7 @@ class Config:
     PARAGRAPH_OUTPUT_DIR = Path(os.getenv('PARAGRAPH_OUTPUT_DIR', './paragraphs'))
     INDEX_OUTPUT_DIR = Path(os.getenv('INDEX_OUTPUT_DIR', './search_index'))
     UNSTRUCTURED_RESULT_DIR = Path(os.getenv('UNSTRUCTURED_RESULT_DIR', './keyword_match_results'))
-    QUANTITATIVE_RESULT_DIR = Path(os.getenv('QUANTITATIVE_RESULT_DIR', './quantitative_results_vlm'))
+    QUANTITATIVE_RESULT_DIR = Path(os.getenv('QUANTITATIVE_RESULT_DIR', './quantitative_results_Qwen'))
     CHANDRA_OCR_RESULT_DIR = Path(os.getenv('CHANDRA_OCR_RESULT_DIR', './quantitative_results_ocr/chandra_ocr_2'))
     NUMERIC_EXTRACT_DIR = Path(os.getenv('NUMERIC_EXTRACT_DIR', './numeric_extracts'))
     QUANTITATIVE_VARIABLES_FILE = Path(
