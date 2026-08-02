@@ -1,6 +1,6 @@
 # ESG 数据管线全流程总览（LLM API 版）
 
-> 本文描述**当前实际运行的版本**（本地 `ESG(1.0)` 代码库，LLM API 架构），并标注并存/遗留的旧链路。
+> 本文描述**当前实际运行的版本**（本地 `ESG(1.0)` 代码库，LLM API 架构），并标注遗留的旧文件。
 > 相关：OCR 阶段细节见 `ESG_OCR_Complete_Documentation.md`；抽样核对结论见 §4。
 
 > ✅ **版本基线（2026-08-01）**：本地 `~/Desktop/Y5S2/ESG/ESG(1.0)`。视觉与文本模型**全部走阿里云 DashScope API**（Qwen-VL-Plus 视觉 / Qwen-Max 文本）；本地 Qwen-VL/7B（`src/qwen_vl_local.py`）已 **DEPRECATED**。GitHub repo 上的 `src/`（2026-07-30）为早期版本，仅供参考。
@@ -19,7 +19,6 @@ flowchart TB
     F --> G["quantitative_results_vlm/<br/>定量分析 JSON"]
     G --> H["calculation<br/>Qwen-Max 公式计算"]
     H --> I["result/ 计算结果"]
-    D -->|"遗留：A/B 线"| K["image_recognizer / chandra_ocr<br/>Qwen-VL-Plus API（整页/裁剪图）"]
     I --> L["DB 入库<br/>MySQL esg 库"]
     G --> L
 ```
@@ -39,9 +38,7 @@ flowchart TB
 | S5 calculation | `calculator.py` | `calculate_variables` / `call_qwen_max_for_calculation` | `quantitative_results_vlm/{编号}/..._quantitative_analysis.json` + 公式定义 | Qwen-Max 公式计算/推导 | `calculation_results/{编号}/{编号}_calculation_result.json` |
 | S6 入库 | `DB/*.py` | — | `quantitative_results_vlm/` + `calculation_results/` | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
 
-**并存/遗留链路**（仍可单独跑，非当前主线）：
-- A 线（旧定量）：`image_recognizer.py` 直接喂**整页 PNG** 给 Qwen-VL-Plus API → `quantitative_results_vlm/`
-- B 线（旧定量）：`chandra_ocr.py`（原 `chandra_ocr_tester.py`，2026-08-02 更名）**Datalab OCR** 出结构化 JSON → Qwen-VL 校正/归一 → `quantitative_results_ocr/chandra_ocr_2/`（表格临时裁剪图用后即删）
+**遗留文件**：
 - `qwen_vl_local.py`：**DEPRECATED**（旧本地 Qwen-VL/7B 路径，已被 API 取代）
 
 **API 配置**（`.env`）：`QWEN_VL_PLUS_API_KEY`（多模态，dashscope multimodal-generation）、`QWEN_MAX_API_KEY`（文本生成）、`OCR_BACKEND`（datalab_api / chandra_local）。
@@ -63,7 +60,7 @@ flowchart TB
 1. **文本块过滤可靠**：CPU 正则稳定剔除无数字文本块；`_has_meaningful_numbers` 已识别英文零值词（zero/nil/no/none），"no fatalities" 类零值声明不再被误删。段落级 20 字符门槛经实测合理（滤掉 ~19% 短片段，几乎全为页码/目录/表格碎片，无有价值损失——实际扮演「表格碎片保险丝」）。
 2. **表格路径无数字过滤**：表格页整页 OCR 的块不检查「是否有数字」；检测器把图表/图片区域也圈为「表」（抽样 7 页为图表复合区域）。
 3. **无逐表 id 关联**：`numeric_blocks` 块 `source` 恒为 `table_ocr`/`table_page`，与 OCR 缓存的 `table_block_id` 不直接关联——**无法逐表审计**「哪张表进了/没进」，只能页码粒度。
-4. **代价**：整页高清图送 OCR（Datalab/Chandra）+ LLM API 调用费，成本高于「只裁表格小块」方案（旧 B 线的裁剪图策略在 API 版已弱化）。
+4. **代价**：整页高清图送 OCR（Datalab/Chandra）+ LLM API 调用费，成本高于「只裁表格小块」方案。
 
 **结论**：「准确去掉没有数字的表格」当前仍做不到（表格块不做数字校验 + 无法逐表验证）。改进见 §5。
 
