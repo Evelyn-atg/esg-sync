@@ -20,7 +20,7 @@ flowchart LR
     G --> H["calculation<br/>Qwen-Max 公式计算"]
     H --> I["result/ 计算结果"]
     C -->|"遗留：定性线"| J["keyword_matching<br/>BM25 → keyword_match_results"]
-    D -->|"遗留：A/B 线"| K["image_recognizer / chandra_ocr_tester<br/>Qwen-VL-Plus API（整页/裁剪图）"]
+    D -->|"遗留：A/B 线"| K["image_recognizer / chandra_ocr<br/>Qwen-VL-Plus API（整页/裁剪图）"]
     I --> L["DB 入库<br/>MySQL esg 库"]
     G --> L
     J --> L
@@ -34,7 +34,7 @@ flowchart LR
 |---|---|---|---|---|
 | S1 pdf_extraction | `pdf_extractor.py` (PyMuPDF) | `HKEX ESG Reports/{编号}.pdf` | PyMuPDF 抽每页文本层（可选渲染页图） | `extracted_text/{编号}.txt`（可选 `page_images/{编号}/page_XXX.png`） |
 | S2 text_processing | `text_processor.py` | `extracted_text/{编号}.txt` | 按 `<PAGE n>` 标记切页 → 空行切段 → >20 字符保留 | `paragraphs/{编号}/paragraphs.json` |
-| S3 numeric_extraction | `numeric_extractor.py` | ①`paragraphs/{编号}/paragraphs.json`（文本块路径）②`extracted_text/{编号}.txt`（表格页检测/回退）③`HKEX ESG Reports/{编号}.pdf` → `page_images/{编号}/page_XXX.png`（渲染后 OCR）④`chandra_ocr_2` 缓存（命中跳过 OCR） | 文本块过滤（`_is_noise_paragraph` 噪声 / `_has_meaningful_numbers` 有效数字，含英文零值词 zero/nil/no/none）+ 表格页整页 OCR（**OCR_BACKEND 可配**：Datalab API / 本地 Chandra） | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
+| S3 numeric_extraction | `numeric_extractor.py`（编排）+ `chandra_ocr.py`（OCR 引擎，ChandraOCREngine）+ `image_recognizer.py`（渲染/表格页检测） | ①`paragraphs/{编号}/paragraphs.json`（文本块路径）②`extracted_text/{编号}.txt`（表格页检测/回退）③`HKEX ESG Reports/{编号}.pdf` → `page_images/{编号}/page_XXX.png`（渲染后 OCR）④`chandra_ocr_2` 缓存（命中跳过 OCR） | 文本块过滤（`_is_noise_paragraph` 噪声 / `_has_meaningful_numbers` 有效数字，含英文零值词 zero/nil/no/none）+ 表格页整页 OCR（**OCR_BACKEND 可配**：Datalab API / 本地 Chandra） | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
 | S4 **llm_matching** | `llm_variable_matcher.py` | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**；prompt 不含 keywords，2026-08-02 起） | **Qwen-Max API** 把数字块匹配到指标变量（智能分批：小块 ≤3/批、大表格独占一批、批 ≤15000 字符；单块超 12000 字符截前 8000+后 4000；超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
 | S5 calculation | `calculator.py` | `quantitative_results_vlm/{编号}/..._quantitative_analysis.json` + 公式定义 | Qwen-Max 公式计算/推导 | `calculation_results/{编号}/{编号}_calculation_result.json` |
 | S6 入库 | `DB/*.py` | `keyword_match_results/` + `quantitative_results_vlm/` + `calculation_results/` | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
@@ -42,7 +42,7 @@ flowchart LR
 **并存/遗留链路**（仍可单独跑，非当前主线）：
 - 定性线：`keyword_matcher.py`（BM25 + tokenizer）→ `keyword_match_results/{编号}/_results.json`
 - A 线（旧定量）：`image_recognizer.py` 直接喂**整页 PNG** 给 Qwen-VL-Plus API → `quantitative_results_vlm/`
-- B 线（旧定量）：`chandra_ocr_tester.py` **Datalab OCR** 出结构化 JSON → Qwen-VL 校正/归一 → `quantitative_results_ocr/chandra_ocr_2/`（表格临时裁剪图用后即删）
+- B 线（旧定量）：`chandra_ocr.py`（原 `chandra_ocr_tester.py`，2026-08-02 更名）**Datalab OCR** 出结构化 JSON → Qwen-VL 校正/归一 → `quantitative_results_ocr/chandra_ocr_2/`（表格临时裁剪图用后即删）
 - `qwen_vl_local.py`：**DEPRECATED**（旧本地 Qwen-VL/7B 路径，已被 API 取代）
 
 **API 配置**（`.env`）：`QWEN_VL_PLUS_API_KEY`（多模态，dashscope multimodal-generation）、`QWEN_MAX_API_KEY`（文本生成）、`OCR_BACKEND`（datalab_api / chandra_local）。
