@@ -39,6 +39,15 @@ _NUMERIC_VALUE_PATTERN = re.compile(
     r'(?<![A-Za-z])\d[\d,]*(?:\.\d+)?'
 )
 
+# English zero-value words: reports often state zero via words, e.g.
+# "no work-related fatalities", "zero injuries", "nil incidents", "none reported".
+# Without these, such paragraphs carry no Arabic digit and get filtered out,
+# even though the LLM prompt explicitly asks to extract explicit zero values.
+_ZERO_WORD_PATTERN = re.compile(
+    r'\b(?:zero|nil|no|none)\b',
+    re.IGNORECASE,
+)
+
 # Year-only pattern: lines that are just a year reference
 _YEAR_ONLY_PATTERN = re.compile(
     r'^[\s\d/\-年月日財财FYfy]*$'
@@ -182,10 +191,14 @@ class NumericExtractor:
         return False
 
     def _has_meaningful_numbers(self, text: str) -> bool:
-        """Check if text contains meaningful numeric values (not just years or page refs)."""
+        """Check if text contains meaningful numeric values (not just years or page refs).
+
+        Also recognizes English zero-value words (zero/nil/no/none) so that explicit
+        zero statements like "no work-related fatalities" survive the filter.
+        """
         numbers = _NUMERIC_VALUE_PATTERN.findall(text)
         if not numbers:
-            return False
+            return bool(_ZERO_WORD_PATTERN.search(text))
 
         # Filter out numbers that are just years (2019-2026) or very small (page numbers <=3 digits alone)
         meaningful_count = 0
@@ -203,7 +216,8 @@ class NumericExtractor:
 
             meaningful_count += 1
 
-        return meaningful_count > 0
+        # Explicit zero-value words count as meaningful even when every digit is a year
+        return meaningful_count > 0 or bool(_ZERO_WORD_PATTERN.search(text))
 
     def _extract_text_blocks(self, pdf_name: str) -> List[Dict[str, Any]]:
         """Extract numeric text blocks from the paragraphs file."""
