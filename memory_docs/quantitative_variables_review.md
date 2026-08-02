@@ -1,48 +1,50 @@
-# quantitative_variables.json 审阅版（id 按 ESG 数字升序，2026-08-02）
+# quantitative_variables.json 审阅版（id ESG 升序 + 二级编码合并，2026-08-02）
 
-> 共 **33 条定量指标**；variables = `{extractable, computed}`（2026-08-01 已删 all；computed 为派生变量，不进 LLM）。
+> 共 **33 条定量指标**；二级编码名取自《Methodology Report 2026-06》。variables = `{extractable, computed}`。
 
-## 汇总（按 id：E→S→G，数字升序）
+## 汇总（维度 / 二级编码 合并单元格）
 
 <table>
-<thead><tr><th>维度</th><th>id</th><th>指标</th><th>extractable</th><th>computed</th></tr></thead>
+<thead><tr><th>维度</th><th>二级编码</th><th>id</th><th>指标</th><th>extractable</th><th>computed</th></tr></thead>
 <tbody>
-<tr><td rowspan="14">E 环境</td><td>E1.1.1</td><td>Scope 1 &amp; Scope 2 排放</td><td>5</td><td>4</td></tr>
+<tr><td rowspan="14">E 环境</td><td rowspan="2">E1.1 温室气体排放管理</td><td>E1.1.1</td><td>Scope 1 &amp; Scope 2 排放</td><td>5</td><td>4</td></tr>
 <tr><td>E1.1.2</td><td>Scope 3 排放</td><td>3</td><td>5</td></tr>
-<tr><td>E1.3.1</td><td>能源消耗总量</td><td>4</td><td>4</td></tr>
+<tr><td rowspan="3">E1.3 能源管理</td><td>E1.3.1</td><td>能源消耗总量</td><td>4</td><td>4</td></tr>
 <tr><td>E1.3.2</td><td>能源效率/强度</td><td>4</td><td>4</td></tr>
 <tr><td>E1.3.3</td><td>可再生能源使用比例</td><td>5</td><td>2</td></tr>
-<tr><td>E1.4.3</td><td>气候相关资本支出（CAPEX）</td><td>4</td><td>2</td></tr>
-<tr><td>E2.1.1</td><td>取水量/消耗量</td><td>4</td><td>4</td></tr>
+<tr><td rowspan="1">E1.4 碳转型与策略</td><td>E1.4.3</td><td>气候相关资本支出（CAPEX）</td><td>4</td><td>2</td></tr>
+<tr><td rowspan="4">E2.1 水资源管理</td><td>E2.1.1</td><td>取水量/消耗量</td><td>4</td><td>4</td></tr>
 <tr><td>E2.1.2</td><td>水资源压力暴露</td><td>5</td><td>2</td></tr>
 <tr><td>E2.1.3</td><td>废水排放/处理</td><td>5</td><td>4</td></tr>
 <tr><td>E2.1.4</td><td>水循环利用率</td><td>4</td><td>3</td></tr>
-<tr><td>E2.2.1</td><td>有害废弃物</td><td>4</td><td>5</td></tr>
+<tr><td rowspan="3">E2.2 废弃物与污染物管理</td><td>E2.2.1</td><td>有害废弃物</td><td>4</td><td>5</td></tr>
 <tr><td>E2.2.2</td><td>非有害废弃物</td><td>4</td><td>5</td></tr>
 <tr><td>E2.2.3</td><td>废弃物回收率</td><td>4</td><td>2</td></tr>
-<tr><td>E5.1.1</td><td>ISO 14001 认证</td><td>4</td><td>2</td></tr>
-<tr><td rowspan="15">S 社会</td><td>S1.1.1</td><td>员工流失率</td><td>5</td><td>3</td></tr>
+<tr><td rowspan="1">E5.1 环境合规与管理体系</td><td>E5.1.1</td><td>ISO 14001 认证</td><td>4</td><td>2</td></tr>
+<tr><td rowspan="15">S 社会</td><td rowspan="3">S1.1 劳动实践与雇佣质量</td><td>S1.1.1</td><td>员工流失率</td><td>5</td><td>3</td></tr>
 <tr><td>S1.1.2</td><td>员工参与度/满意度调查</td><td>8</td><td>4</td></tr>
 <tr><td>S1.1.3</td><td>薪酬公平性（性别薪酬差距）</td><td>5</td><td>2</td></tr>
-<tr><td>S1.2.1</td><td>损工工伤率（LTIR）</td><td>8</td><td>4</td></tr>
+<tr><td rowspan="4">S1.2 职业健康与安全</td><td>S1.2.1</td><td>损工工伤率（LTIR）</td><td>8</td><td>4</td></tr>
 <tr><td>S1.2.2</td><td>死亡事故披露</td><td>4</td><td>5</td></tr>
 <tr><td>S1.2.3</td><td>职业病率</td><td>7</td><td>5</td></tr>
 <tr><td>S1.2.6</td><td>安全培训</td><td>5</td><td>4</td></tr>
-<tr><td>S1.3.1</td><td>人均培训小时数</td><td>13</td><td>5</td></tr>
-<tr><td>S2.1.3</td><td>数据泄露事件记录</td><td>4</td><td>2</td></tr>
-<tr><td>S2.2.4</td><td>质量管理体系（ISO 9001）</td><td>4</td><td>3</td></tr>
-<tr><td>S2.3.2</td><td>客户满意度</td><td>6</td><td>4</td></tr>
+<tr><td rowspan="1">S1.3 员工培训与发展</td><td>S1.3.1</td><td>人均培训小时数</td><td>13</td><td>5</td></tr>
+<tr><td rowspan="1">S2.1 数据安全与隐私保护</td><td>S2.1.3</td><td>数据泄露事件记录</td><td>4</td><td>2</td></tr>
+<tr><td rowspan="1">S2.2 产品质量与安全</td><td>S2.2.4</td><td>质量管理体系（ISO 9001）</td><td>4</td><td>3</td></tr>
+<tr><td rowspan="2">S2.3 负责任营销与客户福利</td><td>S2.3.2</td><td>客户满意度</td><td>6</td><td>4</td></tr>
 <tr><td>S2.3.3</td><td>客户投诉处理</td><td>8</td><td>3</td></tr>
-<tr><td>S3.1.2</td><td>慈善捐赠/公益投入</td><td>6</td><td>3</td></tr>
-<tr><td>S5.1.2</td><td>供应商社会审计</td><td>6</td><td>4</td></tr>
-<tr><td>S5.2.1</td><td>供应商合规监控</td><td>6</td><td>3</td></tr>
-<tr><td rowspan="4">G 治理</td><td>G1.1.1</td><td>董事独立性占比</td><td>5</td><td>2</td></tr>
-<tr><td>G1.2.1</td><td>性别多样性</td><td>8</td><td>4</td></tr>
+<tr><td rowspan="1">S3.1 社区关系与社会投资</td><td>S3.1.2</td><td>慈善捐赠/公益投入</td><td>6</td><td>3</td></tr>
+<tr><td rowspan="1">S5.1 供应商劳工标准</td><td>S5.1.2</td><td>供应商社会审计</td><td>6</td><td>4</td></tr>
+<tr><td rowspan="1">S5.2 供应链安全</td><td>S5.2.1</td><td>供应商合规监控</td><td>6</td><td>3</td></tr>
+<tr><td rowspan="4">G 治理</td><td rowspan="1">G1.1 董事会结构与独立性</td><td>G1.1.1</td><td>董事独立性占比</td><td>5</td><td>2</td></tr>
+<tr><td rowspan="2">G1.2 多元化</td><td>G1.2.1</td><td>性别多样性</td><td>8</td><td>4</td></tr>
 <tr><td>G1.2.2</td><td>年龄多样性</td><td>8</td><td>3</td></tr>
-<tr><td>G4.1.2</td><td>反贿赂/反贪污培训</td><td>3</td><td>2</td></tr>
+<tr><td rowspan="1">G4.1 反腐败与合规</td><td>G4.1.2</td><td>反贿赂/反贪污培训</td><td>3</td><td>2</td></tr>
 </tbody></table>
 
 ## E1.1.1｜Scope 1 & Scope 2 排放
+
+**二级编码**：E1.1 温室气体排放管理
 
 **维度/类别**：E 环境 / 温室气体 (GHG) 排放管理
 
@@ -61,6 +63,8 @@
 
 ## E1.1.2｜Scope 3 排放
 
+**二级编码**：E1.1 温室气体排放管理
+
 **维度/类别**：E 环境 / 温室气体 (GHG) 排放管理
 
 **extractable（3）**：
@@ -76,6 +80,8 @@
 5. coverage rate of Scope 3
 
 ## E1.3.1｜能源消耗总量
+
+**二级编码**：E1.3 能源管理
 
 **维度/类别**：E 环境 / 能源管理
 
@@ -93,6 +99,8 @@
 
 ## E1.3.2｜能源效率/强度
 
+**二级编码**：E1.3 能源管理
+
 **维度/类别**：E 环境 / 能源管理
 
 **extractable（4）**：
@@ -109,6 +117,8 @@
 
 ## E1.3.3｜可再生能源使用比例
 
+**二级编码**：E1.3 能源管理
+
 **维度/类别**：E 环境 / 能源管理
 
 **extractable（5）**：
@@ -124,6 +134,8 @@
 
 ## E1.4.3｜气候相关资本支出（CAPEX）
 
+**二级编码**：E1.4 碳转型与策略
+
 **维度/类别**：E 环境 / 碳转型与策略
 
 **extractable（4）**：
@@ -137,6 +149,8 @@
 2. Increase in Climate-related CAPEX Ratio
 
 ## E2.1.1｜取水量/消耗量
+
+**二级编码**：E2.1 水资源管理
 
 **维度/类别**：E 环境 / 水资源管理
 
@@ -154,6 +168,8 @@
 
 ## E2.1.2｜水资源压力暴露
 
+**二级编码**：E2.1 水资源管理
+
 **维度/类别**：E 环境 / 水资源管理
 
 **extractable（5）**：
@@ -168,6 +184,8 @@
 2. Trend in Exposure Ratio
 
 ## E2.1.3｜废水排放/处理
+
+**二级编码**：E2.1 水资源管理
 
 **维度/类别**：E 环境 / 水资源管理
 
@@ -186,6 +204,8 @@
 
 ## E2.1.4｜水循环利用率
 
+**二级编码**：E2.1 水资源管理
+
 **维度/类别**：E 环境 / 水资源管理
 
 **extractable（4）**：
@@ -200,6 +220,8 @@
 3. Improvement Rate of Water Recycled Ratio
 
 ## E2.2.1｜有害废弃物
+
+**二级编码**：E2.2 废弃物与污染物管理
 
 **维度/类别**：E 环境 / 废弃物与污染物管理
 
@@ -218,6 +240,8 @@
 
 ## E2.2.2｜非有害废弃物
 
+**二级编码**：E2.2 废弃物与污染物管理
+
 **维度/类别**：E 环境 / 废弃物与污染物管理
 
 **extractable（4）**：
@@ -235,6 +259,8 @@
 
 ## E2.2.3｜废弃物回收率
 
+**二级编码**：E2.2 废弃物与污染物管理
+
 **维度/类别**：E 环境 / 废弃物与污染物管理
 
 **extractable（4）**：
@@ -249,6 +275,8 @@
 
 ## E5.1.1｜ISO 14001 认证
 
+**二级编码**：E5.1 环境合规与管理体系
+
 **维度/类别**：E 环境 / 环境合规与管理体系
 
 **extractable（4）**：
@@ -262,6 +290,8 @@
 2. Improvement Rate of ISO 14001 Coverage
 
 ## S1.1.1｜员工流失率
+
+**二级编码**：S1.1 劳动实践与雇佣质量
 
 **维度/类别**：S 社会 / 劳动实践与雇佣质量
 
@@ -278,6 +308,8 @@
 3. Reduction Rate of Turnover
 
 ## S1.1.2｜员工参与度/满意度调查
+
+**二级编码**：S1.1 劳动实践与雇佣质量
 
 **维度/类别**：S 社会 / 劳动实践与雇佣质量
 
@@ -299,6 +331,8 @@
 
 ## S1.1.3｜薪酬公平性（性别薪酬差距）
 
+**二级编码**：S1.1 劳动实践与雇佣质量
+
 **维度/类别**：S 社会 / 劳动实践与雇佣质量
 
 **extractable（5）**：
@@ -313,6 +347,8 @@
 2. Convergence Rate of Pay Gap
 
 ## S1.2.1｜损工工伤率（LTIR）
+
+**二级编码**：S1.2 职业健康与安全
 
 **维度/类别**：S 社会 / 职业健康与安全 (OHS)
 
@@ -334,6 +370,8 @@
 
 ## S1.2.2｜死亡事故披露
 
+**二级编码**：S1.2 职业健康与安全
+
 **维度/类别**：S 社会 / 职业健康与安全 (OHS)
 
 **extractable（4）**：
@@ -350,6 +388,8 @@
 5. Final Score
 
 ## S1.2.3｜职业病率
+
+**二级编码**：S1.2 职业健康与安全
 
 **维度/类别**：S 社会 / 职业健康与安全 (OHS)
 
@@ -371,6 +411,8 @@
 
 ## S1.2.6｜安全培训
 
+**二级编码**：S1.2 职业健康与安全
+
 **维度/类别**：S 社会 / 职业健康与安全 (OHS)
 
 **extractable（5）**：
@@ -387,6 +429,8 @@
 4. Training Assessment Pass Rate
 
 ## S1.3.1｜人均培训小时数
+
+**二级编码**：S1.3 员工培训与发展
 
 **维度/类别**：S 社会 / 培训与发展
 
@@ -414,6 +458,8 @@
 
 ## S2.1.3｜数据泄露事件记录
 
+**二级编码**：S2.1 数据安全与隐私保护
+
 **维度/类别**：S 社会 / 数据安全与隐私保护
 
 **extractable（4）**：
@@ -427,6 +473,8 @@
 2. Remediation Completion Rate (Percentage of impacted users compensated/notified)
 
 ## S2.2.4｜质量管理体系（ISO 9001）
+
+**二级编码**：S2.2 产品质量与安全
 
 **维度/类别**：S 社会 / 产品质量与安全
 
@@ -442,6 +490,8 @@
 3. CAPA Closure Rate (Corrective and Preventive Actions)
 
 ## S2.3.2｜客户满意度
+
+**二级编码**：S2.3 负责任营销与客户福利
 
 **维度/类别**：S 社会 / 负责任营销与福利
 
@@ -460,6 +510,8 @@
 4. Sample Coverage Ratio
 
 ## S2.3.3｜客户投诉处理
+
+**二级编码**：S2.3 负责任营销与客户福利
 
 **维度/类别**：S 社会 / 负责任营销与福利
 
@@ -480,6 +532,8 @@
 
 ## S3.1.2｜慈善捐赠/公益投入
 
+**二级编码**：S3.1 社区关系与社会投资
+
 **维度/类别**：S 社会 / 社区关系与发展
 
 **extractable（6）**：
@@ -496,6 +550,8 @@
 3. Growth Rate of Philanthropy
 
 ## S5.1.2｜供应商社会审计
+
+**二级编码**：S5.1 供应商劳工标准
 
 **维度/类别**：S 社会 / 供应商劳工标准
 
@@ -515,6 +571,8 @@
 
 ## S5.2.1｜供应商合规监控
 
+**二级编码**：S5.2 供应链安全
+
 **维度/类别**：S 社会 / 供应链安全
 
 **extractable（6）**：
@@ -532,6 +590,8 @@
 
 ## G1.1.1｜董事独立性占比
 
+**二级编码**：G1.1 董事会结构与独立性
+
 **维度/类别**：G 治理 / 董事会结构与独立性
 
 **extractable（5）**：
@@ -546,6 +606,8 @@
 2. Improvement Rate
 
 ## G1.2.1｜性别多样性
+
+**二级编码**：G1.2 多元化
 
 **维度/类别**：G 治理 / 多元化
 
@@ -567,6 +629,8 @@
 
 ## G1.2.2｜年龄多样性
 
+**二级编码**：G1.2 多元化
+
 **维度/类别**：G 治理 / 多元化
 
 **extractable（8）**：
@@ -585,6 +649,8 @@
 3. SCORE_FINAL (Final Quantitative Score)
 
 ## G4.1.2｜反贿赂/反贪污培训
+
+**二级编码**：G4.1 反腐败与合规
 
 **维度/类别**：G 治理 / 反腐败与合规
 
