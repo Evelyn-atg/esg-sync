@@ -48,12 +48,6 @@
           "greenhouse gas emission of Scope 1 (direct emissions)",
           "greenhouse gas emission of Scope 2 (indirect emissions)",
           "Scope 1 and Scope 2 GHG emission intensity"
-        ],
-        "computed": [
-          "revenue（需从外部金融数据库获取）",
-          "emission intensity of Scope1&2",
-          "benchmark score in Scope1&2",
-          "improvement rate of Scope 1&2"
         ]
       },
       "legacy_id": "E1.1"
@@ -87,13 +81,6 @@
           "greenhouse gas emission of Scope 3",
           "industry average emission intensity value of Scope 3",
           "number of Scope 3 category disclosed"
-        ],
-        "computed": [
-          "revenue（需从外部金融数据库获取）",
-          "emission intensity of Scope3",
-          "benchmark score in Scope3",
-          "improvement rate of Scope 3",
-          "coverage rate of Scope 3"
         ]
       },
       "legacy_id": "E1.2"
@@ -143,12 +130,6 @@
           "Energy Consumption of direct sources and indirect sources",
           "Standard Coal Equivalent (tce) conversion factors for each energy type",
           "Industry Average Energy Intensity value"
-        ],
-        "computed": [
-          "Revenue (per million units of currency)（需从外部金融数据库获取）",
-          "Energy Intensity",
-          "Benchmark Ratio of Energy Intensity",
-          "Improvement Rate of Energy Intensity"
         ]
       },
       "legacy_id": "E3.1"
@@ -199,12 +180,6 @@
           "Industry Average Energy Intensity value",
           "Energy Intensity last year",
           "Energy Intensity this year"
-        ],
-        "computed": [
-          "Business Activity Output (Revenue or Production volume)（需从外部金融数据库获取）",
-          "Energy Intensity (Consumption per unit of output)",
-          "Benchmark Ratio of Energy Intensity",
-          "Improvement Rate of Energy Intensity"
         ]
       },
       "legacy_id": "E3.2"
@@ -249,10 +224,6 @@
           "Total Energy Consumption",
           "Renewable Energy Ratio last year",
           "Renewable Energy Ratio this year"
-        ],
-        "computed": [
-          "Renewable Energy Ratio",
-          "Increase in Renewable Energy Ratio"
         ]
       },
       "legacy_id": "E3.3"
@@ -308,10 +279,6 @@
           "Total CAPEX (annual total capital expenditure)",
           "Climate-related CAPEX Ratio last year",
           "Climate-related CAPEX Ratio this year"
-        ],
-        "computed": [
-          "Climate-related CAPEX Ratio",
-          "Increase in Climate-related CAPEX Ratio"
         ]
       },
       "legacy_id": "E4.3"
@@ -359,12 +326,6 @@
           "Industry Average Water Intensity value",
           "Water Intensity last year",
           "Water Intensity this year"
-        ],
-        "computed": [
-          "Revenue (per million units of currency)（需从外部金融数据库获取）",
-          "Water Intensity (Withdrawal per unit of output)",
-          "Benchmark Ratio of Water Intensity",
-          "Improvement Rate of Water Intensity"
         ]
       },
       "legacy_id": "E5.1"
@@ -415,10 +376,6 @@
           "Exposure Ratio of Water Stress last year",
           "Exposure Ratio of Water Stress this year",
           "Number of Facilities in Water Stressed Areas"
-        ],
-        "computed": [
-          "Exposure Ratio of Water Stress",
-          "Trend in Exposure Ratio"
         ]
       },
       "legacy_id": "E5.2"
@@ -463,12 +420,6 @@
           "COD or NH3-N in kg)",
           "Pollutant Intensity last year",
           "Pollutant Intensity this year"
-        ],
-        "computed": [
-          "Revenue (per million units of currency)（需从外部金融数据库获取）",
-          "Pollutant Intensity (Amount of Key Pollutants / Revenue)",
-          "Improvement Rate of Pollutant Intensity",
-          "Wastewater Treatment Rate"
         ]
       },
       "legacy_id": "E5.3"
@@ -512,11 +463,6 @@
           "Total Water Withdrawal (Amount of fresh water taken from sources)",
           "Water Recycled Ratio last year",
           "Water Recycled Ratio this year"
-        ],
-        "computed": [
-          "Total Water Consumption/Usage (Recycled Water + Withdrawal)",
-          "Water Recycled Ratio",
-          "Improvement Rate of Water Recycled Ratio"
         ]
       },
       "legacy_id": "E5.4"
@@ -560,13 +506,6 @@
           "Industry Average Hazardous Waste Intensity value",
           "Hazardous Waste Intensity last year",
           "Hazardous Waste Intensity this year"
-        ],
-        "computed": [
-          "Revenue (per million units of currency)（需从外部金融数据库获取）",
-          "Hazardous Waste Intensity (Generated weight / Revenue)",
-          "Benchmark Ratio of Hazardous Waste Intensity",
-          "Improvement Rate of Hazardous Waste Intensity",
-          "Hazardous Waste Compliance Disposal Rate"
         ]
       },
       "legacy_id": "E6.1"
@@ -607,13 +546,6 @@
           "Industry Average Non-hazardous Waste Intensity value",
           "Non-hazardous Waste Intensity last year",
           "Non-hazardous Waste Intensity this year"
-        ],
-        "computed": [
-          "Revenue (per million units of currency)（需从外部金融数据库获取）",
-          "Non-hazardous Waste Intensity (Generated weight / Revenue)",
-          "Benchmark Ratio of Non-hazardous Waste Intensity",
-          "Improvement Rate of Non-hazardous Waste Intensity",
-          "Coverage Ratio of Waste Classification Management"
         ]
       },
       "legacy_id": "E6.2"
@@ -660,10 +592,6 @@
           "Total Waste Generated (Total weight of all waste produced)",
           "Waste Recycling Rate last year",
           "Waste Recycling Rate this year"
-        ],
-        "computed": [
-          "Waste Recycling Rate",
-          "Improvement Rate of Waste Recycling Rate"
         ]
       },
       "legacy_id": "E6.3"
@@ -704,10 +632,6 @@
           "Total Group Revenue/Sites",
           "ISO 14001 Coverage Ratio last year",
           "ISO 14001 Coverage Ratio this year"
-        ],
-        "computed": [
-          "ISO 14001 Coverage Ratio",
-          "Improvement Rate of ISO 14001 Coverage"
         ]
       },
       "legacy_id": "E8.1"
@@ -746,11 +670,6 @@
           "Employee Turnover Rate last year",
           "Employee Turnover Rate this year",
           "Industry Average Turnover Rate value"
-        ],
-        "computed": [
-          "Employee Turnover Rate",
-          "Benchmark Ratio of Turnover",
-          "Reduction Rate of Turnover"
         ]
       },
       "legacy_id": "S1.1"
@@ -795,12 +714,6 @@
           "Total Number of Action Items Identified",
           "Satisfaction Score last year",
           "Satisfaction Score this year"
-        ],
-        "computed": [
-          "Participation Rate",
-          "Satisfaction Benchmark Ratio",
-          "Action Plan Execution Rate",
-          "Improvement Rate of Satisfaction Score"
         ]
       },
       "legacy_id": "S1.2"
@@ -842,10 +755,6 @@
           "Gender Pay Gap Ratio last year",
           "Gender Pay Gap Ratio this year",
           "Adjusted Pay Gap (by level/role)"
-        ],
-        "computed": [
-          "Gender Pay Gap Ratio",
-          "Convergence Rate of Pay Gap"
         ]
       },
       "legacy_id": "S1.3"
@@ -890,12 +799,6 @@
           "Industry Average LTIR value",
           "Lost Time Injury Rate (LTIR) this year",
           "Lost Time Injury Rate (LTIR) last year"
-        ],
-        "computed": [
-          "LTIR (Calculated based on 200",
-          "000 hours)",
-          "Benchmark Ratio of LTIR",
-          "Reduction Rate of LTIR"
         ]
       },
       "legacy_id": "S2.1"
@@ -936,13 +839,6 @@
           "Total Man-hours Worked",
           "Industry Average FIFR value",
           "RCA Completion Score"
-        ],
-        "computed": [
-          "FIFR (Fatal Injury Frequency Rate per 200",
-          "000 or 1M hours)",
-          "Incident Disclosure Score",
-          "Red Flag Multiplier (0.5 if repeat causes found)",
-          "Final Score"
         ]
       },
       "legacy_id": "S2.2"
@@ -986,13 +882,6 @@
           "Industry Average Occupational Disease Rate value",
           "Number of Employees in Occupational Hazard Roles",
           "Number of Employees Received Health Checkups"
-        ],
-        "computed": [
-          "Occupational Disease Rate (per 10",
-          "000 employees)",
-          "Benchmark Ratio of Occupational Disease Rate",
-          "Improvement Rate",
-          "Health Surveillance Coverage"
         ]
       },
       "legacy_id": "S2.3"
@@ -1034,12 +923,6 @@
           "Total Safety Training Hours (Sum of all participants' hours)",
           "Average Safety Training Hours last year",
           "Average Safety Training Hours this year"
-        ],
-        "computed": [
-          "Safety Training Coverage",
-          "Average Safety Training Hours",
-          "Improvement Rate of Training Hours",
-          "Training Assessment Pass Rate"
         ]
       },
       "legacy_id": "S2.6"
@@ -1089,13 +972,6 @@
           "Industry Average Training Hours value",
           "Number of Training Programs Completed",
           "Total Number of Training Programs Planned"
-        ],
-        "computed": [
-          "Average Training Hours - Male",
-          "Average Training Hours - Female",
-          "Total Average Training Hours (Group total)",
-          "Improvement Rate of Training Hours",
-          "Training Completion Rate"
         ]
       },
       "legacy_id": "S3.1"
@@ -1136,10 +1012,6 @@
           "Number of Impacted Users",
           "Incident Severity Level (Weighted by regulatory impact)",
           "Disclosure Score"
-        ],
-        "computed": [
-          "MTTR (Mean Time to Respond in hours)",
-          "Remediation Completion Rate (Percentage of impacted users compensated/notified)"
         ]
       },
       "legacy_id": "S5.3"
@@ -1177,11 +1049,6 @@
           "Total Group Revenue/Sites",
           "ISO 9001 Coverage Ratio last year",
           "ISO 9001 Coverage Ratio this year"
-        ],
-        "computed": [
-          "ISO 9001 Coverage Ratio",
-          "Improvement Rate of ISO 9001 Coverage",
-          "CAPA Closure Rate (Corrective and Preventive Actions)"
         ]
       },
       "legacy_id": "S6.4"
@@ -1224,12 +1091,6 @@
           "Satisfaction Score this year",
           "Survey Sample Size",
           "Total Active Customer Base"
-        ],
-        "computed": [
-          "NPS",
-          "Satisfaction Benchmark Ratio",
-          "Improvement Rate of Satisfaction Score",
-          "Sample Coverage Ratio"
         ]
       },
       "legacy_id": "S7.2"
@@ -1274,11 +1135,6 @@
           "Resolved Action Items",
           "Esolution Rate this year",
           "Resolution Rate last year"
-        ],
-        "computed": [
-          "Resolution Rate",
-          "Escalation Rate",
-          "Improvement Rate"
         ]
       },
       "legacy_id": "S7.3"
@@ -1321,11 +1177,6 @@
           "Philanthropic Investment last year",
           "Philanthropic Investment this year",
           "Number of Beneficiaries"
-        ],
-        "computed": [
-          "Total Philanthropic Investment (Cash + In-kind)",
-          "Charity-to-Profit Ratio",
-          "Growth Rate of Philanthropy"
         ]
       },
       "legacy_id": "S8.2"
@@ -1371,12 +1222,6 @@
           "Number of High-risk Suppliers Audited on-site",
           "Total Number of Non-conformities (NCs) Found",
           "Number of NCs Closed per Schedule"
-        ],
-        "computed": [
-          "Audit Coverage Ratio",
-          "Corrective Action Closure Rate",
-          "Improvement Rate of Audit Coverage",
-          "High-risk Audit Ratio"
         ]
       },
       "legacy_id": "S9.1"
@@ -1419,11 +1264,6 @@
           "Total Hours/Days to Initial Response",
           "Number of High-risk Suppliers with Management Actions",
           "Total High-risk Suppliers Identified via Monitoring"
-        ],
-        "computed": [
-          "Monitoring Coverage Ratio",
-          "MTTC (Mean Time to Correct)",
-          "Dynamic Management Rate"
         ]
       },
       "legacy_id": "S10.1"
@@ -1465,10 +1305,6 @@
           "Board Independence Ratio last year",
           "Board Independence Ratio this year",
           "Average Tenure of Independent Directors (Supplemental info)"
-        ],
-        "computed": [
-          "Board Independence Ratio",
-          "Improvement Rate"
         ]
       },
       "legacy_id": "G1.1"
@@ -1516,12 +1352,6 @@
           "Female Employee Ratio (%)",
           "Number of Female in Senior Management",
           "Female Senior Management Ratio (%)"
-        ],
-        "computed": [
-          "FEMALE_PCT (Percentage of Female Directors)",
-          "PCT_SCORE (Percentage Dimension Score)",
-          "MASS_SCORE (Critical Mass Dimension Score)",
-          "SCORE_FINAL (Final Quantitative Score)"
         ]
       },
       "legacy_id": "G2.1"
@@ -1569,11 +1399,6 @@
           "Number of Senior Management",
           "Number of Middle Management",
           "Number of Frontline/General Employees"
-        ],
-        "computed": [
-          "AVG_AGE_SCORE (Average Age Dimension Score)",
-          "STDEV_SCORE (Age Dispersion Dimension Score)",
-          "SCORE_FINAL (Final Quantitative Score)"
         ]
       },
       "legacy_id": "G2.2"
@@ -1620,10 +1445,6 @@
           "DIRECTOR_TRAINING (Director Training Score)",
           "COVERAGE (Employee Training Coverage Rate)",
           "FREQUENCY (Training Frequency Score)"
-        ],
-        "computed": [
-          "COVERAGE_SCORE (Employee Coverage Score)",
-          "SCORE_FINAL (Final Quantitative Score)"
         ]
       },
       "legacy_id": "G4.2"
