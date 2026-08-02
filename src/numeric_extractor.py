@@ -370,10 +370,10 @@ class NumericExtractor:
 
         # Create OCR tester ONCE and reuse for all pages
         try:
-            from src.chandra_ocr_tester import ChandraOCRTester
-            ocr_tester = ChandraOCRTester()
+            from src.chandra_ocr import ChandraOCREngine
+            ocr_engine = ChandraOCREngine()
             # Pre-load the model so it's ready for all pages
-            ocr_tester._ensure_chandra_manager()
+            ocr_engine._ensure_chandra_manager()
         except (ImportError, Exception) as e:
             logger.warning(f"[{pdf_name}] Chandra OCR not available: {e}. Cannot OCR missing pages")
             return ocr_results
@@ -427,7 +427,7 @@ class NumericExtractor:
                 timing: Dict[str, float] = {}
                 sampler = _GpuUtilSampler().start()
                 try:
-                    batch_results = ocr_tester._run_page_ocr_batch(batch_images, timing=timing, pdf_name=pdf_name)
+                    batch_results = ocr_engine._run_page_ocr_batch(batch_images, timing=timing, pdf_name=pdf_name)
                 except GPUFatalError as e:
                     # GPU fatal error - stop sampler, log critical error, and exit immediately
                     sampler.stop()
@@ -470,12 +470,12 @@ class NumericExtractor:
 
                         # Rich format: split page into per-table blocks (bbox, block id, section)
                         image_file = pdf_image_dir / f"page_{page_num:03d}.png"
-                        table_blocks = ocr_tester._extract_table_blocks(
+                        table_blocks = ocr_engine._extract_table_blocks(
                             page_result=result, pdf_name=pdf_name,
                             page_num=page_num, image_file=image_file,
                         )
                         new_tables.extend(
-                            ocr_tester._table_record_for_ocr_json(tb) for tb in table_blocks
+                            ocr_engine._table_record_for_ocr_json(tb) for tb in table_blocks
                         )
                         new_page_meta.append({
                             "page_number": str(page_num),
