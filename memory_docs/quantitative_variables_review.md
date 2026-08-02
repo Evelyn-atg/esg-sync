@@ -1,4 +1,4 @@
-# quantitative_variables.json 审阅版（含 extractable 内容，2026-08-02）
+# quantitative_variables.json 
 
 > 共 **33 条定量指标**；二级编码名取自《Methodology Report 2026-06》；extractable 为完整变量列表。
 
