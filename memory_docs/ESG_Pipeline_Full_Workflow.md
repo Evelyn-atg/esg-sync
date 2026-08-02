@@ -34,8 +34,8 @@ flowchart LR
 |---|---|---|---|---|
 | S1 pdf_extraction | `pdf_extractor.py` (PyMuPDF) | PDF | 抽每页纯文本（可选渲染页图） | `text/{编号}.txt` |
 | S2 text_processing | `text_processor.py` | text | 切分段落 | `paragraphs/{编号}/paragraphs.json` |
-| S3 numeric_extraction | `numeric_extractor.py` | paragraphs + PDF | 文本块正则过滤（`_is_noise_line`/`_has_meaningful_numbers`）+ 表格页整页 OCR（**OCR_BACKEND 可配**：Datalab API / 本地 Chandra） | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
-| S4 **llm_matching** | `llm_variable_matcher.py` | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**，2026-08-01 起） | **Qwen-Max API** 把数字块匹配到指标变量（批内 3 块/次、内容截断 6000 字符、超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
+| S3 numeric_extraction | `numeric_extractor.py` | paragraphs + PDF | 文本块过滤（`_is_noise_paragraph` 噪声 / `_has_meaningful_numbers` 有效数字，含英文零值词 zero/nil/no/none）+ 表格页整页 OCR（**OCR_BACKEND 可配**：Datalab API / 本地 Chandra） | `numeric_extracts/{编号}/numeric_blocks.json` + `chandra_ocr_2` 缓存 |
+| S4 **llm_matching** | `llm_variable_matcher.py` | **numeric_blocks.json** + `quantitative_variables.json`（33 条定量指标、**仅 extractable**；prompt 不含 keywords，2026-08-02 起） | **Qwen-Max API** 把数字块匹配到指标变量（智能分批：小块 ≤3/批、大表格独占一批、批 ≤15000 字符；单块超 12000 字符截前 8000+后 4000；超时/重试） | `quantitative_results_vlm/{编号}/{编号}_quantitative_analysis.json` |
 | S5 calculation | `calculator.py` | 定量分析 JSON + 公式 | Qwen-Max 公式计算/推导 | `result/{编号}/{编号}_calculation_result.json` |
 | S6 入库 | `DB/*.py` | 定性/定量结果 | 写入 MySQL `esg` 库（含 PDF_URL 下载闭环） | MySQL 表 |
 
@@ -54,14 +54,14 @@ flowchart LR
 1. **LLM API 化**：视觉（Qwen-VL-Plus）与文本（Qwen-Max）全部走 DashScope API，不再跑本地 7B——省本地显存、换精度与吞吐；代价是 API 费用与节流（git 历史：并发 8 worker 曾触发 API throttling，已回退到 4）。
 2. **匹配质量有 GT 校验**：`gt_compare.py` / `run_llm_matching_all_gt.py` 对照 Ground Truth 打分（git 历史曾达 **GHG scope 单元格 70/70** 全对）。
 3. **缓存即去重**：`chandra_ocr_2/` 存在即完成，支持断点续传。
-4. **提示词工程**：变量定义全量入 prompt（曾修复截断问题）、scope 拆分 + 多年份、零值提取、turnover rate/energy 子项等专项规则。
+4. **提示词工程**：变量定义全量入 prompt（仅 extractable；2026-08-02 起移除 keywords，每批省 ~2500 token）、scope 拆分 + 多年份、零值提取（文本路径已识别英文零值词 zero/nil/no/none）、turnover rate/energy 子项等专项规则。
 5. **崩溃止损**（旧版沿用）：GPU 健康追踪 + PDF 黑名单。
 
 ---
 
 ## 4. 已知限制（2026-08-01 抽样核对结论）
 
-1. **文本块过滤可靠**：CPU 正则稳定剔除无数字文本块。
+1. **文本块过滤可靠**：CPU 正则稳定剔除无数字文本块；`_has_meaningful_numbers` 已识别英文零值词（zero/nil/no/none），"no fatalities" 类零值声明不再被误删。段落级 20 字符门槛经实测合理（滤掉 ~19% 短片段，几乎全为页码/目录/表格碎片，无有价值损失——实际扮演「表格碎片保险丝」）。
 2. **表格路径无数字过滤**：表格页整页 OCR 的块不检查「是否有数字」；检测器把图表/图片区域也圈为「表」（抽样 7 页为图表复合区域）。
 3. **无逐表 id 关联**：`numeric_blocks` 块 `source` 恒为 `table_ocr`/`table_page`，与 OCR 缓存的 `table_block_id` 不直接关联——**无法逐表审计**「哪张表进了/没进」，只能页码粒度。
 4. **代价**：整页高清图送 OCR（Datalab/Chandra）+ LLM API 调用费，成本高于「只裁表格小块」方案（旧 B 线的裁剪图策略在 API 版已弱化）。
@@ -85,7 +85,7 @@ flowchart LR
 
 | 步骤 | 输入 | 处理（API） | 输出 |
 |---|---|---|---|
-| llm_matching | `numeric_blocks.json` + 变量定义 | **Qwen-Max**（dashscope 文本生成）批匹配（≤3 块/次、单块 ≤6000 字符） | `quantitative_results_vlm/{编号}/_quantitative_analysis.json` |
+| llm_matching | `numeric_blocks.json` + 变量定义（仅 extractable） | **Qwen-Max**（dashscope 文本生成）智能批匹配（小块 ≤3/批、大表格独占、批 ≤15000 字符；单块截断 12000 字符） | `quantitative_results_vlm/{编号}/_quantitative_analysis.json` |
 | calculation | 定量分析 JSON + 公式 | **Qwen-Max** 公式计算/推导（Scope 拆分、多年份、组件聚合） | `result/{编号}/_calculation_result.json` |
 | 校验 | GT 表 | `gt_compare.py` 打分 | 匹配率报告（曾 70/70） |
 
@@ -101,4 +101,4 @@ flowchart LR
 
 ---
 
-**文档版本**：2.0（LLM API 版） ｜ **更新**：2026-08-01 ｜ 基于本地 `ESG(1.0)` 代码
+**文档版本**：2.1（LLM API 版） ｜ **更新**：2026-08-02 ｜ 基于本地 `ESG(1.0)` 代码
