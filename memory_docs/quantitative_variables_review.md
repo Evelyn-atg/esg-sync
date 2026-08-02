@@ -15,7 +15,7 @@
 <tr><td rowspan="1">E1.4 碳转型与策略</td><td>E1.4.3</td><td>气候相关资本支出（CAPEX）</td><td>1. Climate-related CAPEX (investment in emission reduction and efficiency)<br>2. Total CAPEX (annual total capital expenditure)<br>3. Climate-related CAPEX Ratio last year<br>4. Climate-related CAPEX Ratio this year</td></tr>
 <tr><td rowspan="4">E2.1 水资源管理</td><td>E2.1.1</td><td>取水量/消耗量</td><td>1. Total Water Withdrawal (from all sources in m³)<br>2. Industry Average Water Intensity value<br>3. Water Intensity last year<br>4. Water Intensity this year</td></tr>
 <tr><td>E2.1.2</td><td>水资源压力暴露</td><td>1. Water Withdrawal in High Water Stress Areas<br>2. Total Water Withdrawal<br>3. Exposure Ratio of Water Stress last year<br>4. Exposure Ratio of Water Stress this year<br>5. Number of Facilities in Water Stressed Areas</td></tr>
-<tr><td>E2.1.3</td><td>废水排放/处理</td><td>1. Total Wastewater Discharge (in m3)<br>2. Amount of Key Pollutants (e.g<br>3. COD or NH3-N in kg)<br>4. Pollutant Intensity last year<br>5. Pollutant Intensity this year</td></tr>
+<tr><td>E2.1.3</td><td>废水排放/处理</td><td>1. Total Wastewater Discharge (in m3)<br>2. Amount of Key Pollutants (e.g COD or NH3-N in kg)<br>3. Pollutant Intensity last year<br>4. Pollutant Intensity this year</td></tr>
 <tr><td>E2.1.4</td><td>水循环利用率</td><td>1. Recycled Water Volume (Volume of water reused or recycled)<br>2. Total Water Withdrawal (Amount of fresh water taken from sources)<br>3. Water Recycled Ratio last year<br>4. Water Recycled Ratio this year</td></tr>
 <tr><td rowspan="3">E2.2 废弃物与污染物管理</td><td>E2.2.1</td><td>有害废弃物</td><td>1. Hazardous Waste Generated (Total weight of hazardous waste)<br>2. Industry Average Hazardous Waste Intensity value<br>3. Hazardous Waste Intensity last year<br>4. Hazardous Waste Intensity this year</td></tr>
 <tr><td>E2.2.2</td><td>非有害废弃物</td><td>1. Non-hazardous Waste Generated (Total weight of non-hazardous waste)<br>2. Industry Average Non-hazardous Waste Intensity value<br>3. Non-hazardous Waste Intensity last year<br>4. Non-hazardous Waste Intensity this year</td></tr>
@@ -146,12 +146,11 @@
 
 **维度/类别**：E 环境 / 水资源管理
 
-**extractable（5）**：
+**extractable（4）**：
 1. Total Wastewater Discharge (in m3)
-2. Amount of Key Pollutants (e.g
-3. COD or NH3-N in kg)
-4. Pollutant Intensity last year
-5. Pollutant Intensity this year
+2. Amount of Key Pollutants (e.g COD or NH3-N in kg)
+3. Pollutant Intensity last year
+4. Pollutant Intensity this year
 
 ## E2.1.4｜水循环利用率
 
