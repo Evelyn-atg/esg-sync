@@ -53,6 +53,8 @@ def upload(path, content: bytes, msg):
 def main():
     ap = argparse.ArgumentParser(description="扫描集群 OCR 结果目录并上传 numeric_blocks.json 到 GitHub")
     ap.add_argument("--src", default="numeric_extracts", help="集群 OCR 结果目录（含 {pid}/numeric_blocks.json）")
+    ap.add_argument("--list-file", default=None, help="只上传此清单中的 pid（每行一个，支持 pid 或 pid.pdf）")
+    ap.add_argument("--limit", type=int, default=0, help="最多上传 N 个（0=全部；配合 --list-file 取清单前 N 个）")
     ap.add_argument("--dry-run", action="store_true", help="只打印将上传的 pid，不实际上传")
     args = ap.parse_args()
 
@@ -72,6 +74,19 @@ def main():
             size = os.path.getsize(blocks)
             candidates.append((pid, blocks, size))
     print(f"扫描 {src}: 找到 {len(candidates)} 个含 numeric_blocks.json 的报告")
+
+    # 清单过滤：只传用户指定的 pid（防止 6500 个全传爆 GitHub）
+    if args.list_file:
+        want = set()
+        for line in open(args.list_file, encoding="utf-8"):
+            pid = line.strip().replace(".pdf", "").replace("/", "").replace(".", "")
+            if pid:
+                want.add(pid)
+        candidates = [c for c in candidates if c[0] in want]
+        print(f"清单过滤（{args.list_file}）: 命中 {len(candidates)} 个")
+    if args.limit > 0:
+        candidates = candidates[:args.limit]
+        print(f"limit={args.limit}: 只传前 {len(candidates)} 个")
 
     new_cnt = skip_cnt = fail_cnt = 0
     for pid, blocks, size in candidates:
