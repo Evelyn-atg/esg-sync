@@ -25,11 +25,12 @@ REPO = "Evelyn-atg/esg-sync"
 REMOTE_DIR = "numeric_extracts"
 
 
-def gh(args, _input=None):
-    """包装 gh api 调用，返回 (returncode, stdout, stderr)。"""
+def gh(url, _input=None, extra=None):
+    """包装 gh api 调用：url 为单参数（如 repos/x/y/contents/z），extra 为前置选项。"""
     cmd = ["gh", "api"]
-    if args:
-        cmd += args
+    if extra:
+        cmd += extra
+    cmd.append(url)
     if _input is not None:
         cmd += ["--input", "-"]
         r = subprocess.run(cmd, input=_input, capture_output=True, text=True)
@@ -39,13 +40,13 @@ def gh(args, _input=None):
 
 
 def remote_exists(path):
-    rc, _, _ = gh(["repos", REPO, "contents", path])
+    rc, _, _ = gh(f"repos/{REPO}/contents/{path}")
     return rc == 0
 
 
 def upload(path, content: bytes, msg):
     payload = json.dumps({"message": msg, "content": base64.b64encode(content).decode()})
-    rc, _, err = gh(["-X", "PUT", "repos", REPO, "contents", path], _input=payload)
+    rc, _, err = gh(f"repos/{REPO}/contents/{path}", _input=payload, extra=["-X", "PUT"])
     return rc == 0, err
 
 
