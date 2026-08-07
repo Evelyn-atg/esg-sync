@@ -18,4 +18,5 @@
 - [Memory and resource management](memory-resource-management.md) — GPU 显存和系统内存管理，避免 OOM，batch_size 与进程数平衡（3 进程/GPU 推荐 OCR_BATCH_SIZE=8），SLURM 配置 --mem=64G
 - [Pipeline architecture and configuration](pipeline-architecture-configuration.md) — ESG OCR pipeline 架构，关键参数配置，运行流程，日志分析，性能基准，故障处理和最佳实践
 - [ESG OCR project summary](esg-ocr-project-summary.md) — 项目综合总结，所有优化、问题、解决方案和最佳实践的索引，包括 GPU 批处理、错误处理、工作负载均衡、内存管理等
+- [GT 三维验证](esg-gt-verify-3dimension.md) — 100 家 Excel 行级验证（语义/单位/数值三维），总 16,175 行三维全 yes 85.6%，排除 00388 后 87.8%；00388 港交所指标定位系统偏差 41.8%
 - [OCR2 质量检查 pipeline](esg-ocr2-quality-check.md) — chandra_ocr_2 完整性+质量检查：数字核对（ls 混入文件陷阱）、ocr2_quality.py 统计（9389 份基线：0 损坏、空表 179 全兜底、suspicious=0）、空表 vs blocks 对照判定
