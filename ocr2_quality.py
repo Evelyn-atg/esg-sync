@@ -176,11 +176,12 @@ def main():
 
     if CSV:
         with io.open(CSV, "w", encoding="utf-8") as f:
-            f.write("pid,size_bytes,n_tables,n_pages,html_chars,parse_quality\n")
+            f.write(u"pid,size_bytes,n_tables,n_pages,html_chars,parse_quality\n")
             for pid, size, nt, npg, hlen, q in rows:
-                f.write("%s,%d,%d,%d,%d,%s\n" %
-                        (pid, size, nt, npg, hlen, "%.3f" % q if q is not None else ""))
-        print("\nCSV 已写: %s (%d 行)" % (CSV, len(rows)))
+                f.write(u"%s,%d,%d,%d,%d,%s\n" %
+                        (pid, size, nt, npg, hlen,
+                         u"%.3f" % q if q is not None else u""))
+        print(u"\nCSV 已写: %s (%d 行)" % (CSV, len(rows)))
 
 
 if __name__ == "__main__":
