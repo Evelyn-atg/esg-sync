@@ -18,7 +18,7 @@ class Calculator:
     def __init__(self):
         self.api_key = Config.QWEN_MAX_API_KEY
         # Using the correct endpoint for qwen-max (text-based model) according to DashScope API
-        self.base_url = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+        self.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
@@ -134,7 +134,6 @@ class Calculator:
         params = {
             "max_tokens": 4000,
             "temperature": 0.1,
-            "result_format": "message",
         }
         if Config.ENABLE_THINKING:
             # Calculation is simpler than matching — use a smaller thinking budget.
@@ -147,16 +146,14 @@ class Calculator:
 
         payload = {
             "model": Config.QWEN_MAX_MODEL,
-            "input": {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            },
-            "parameters": params,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
         }
+        payload.update(params)
 
         try:
             import time
@@ -186,8 +183,8 @@ class Calculator:
             text_content = ""
 
             # Check for the standard response structure
-            if 'output' in result and 'choices' in result['output']:
-                choices = result['output']['choices']
+            if 'choices' in result:
+                choices = result['choices']
                 if len(choices) > 0 and 'message' in choices[0]:
                     message = choices[0]['message']
 

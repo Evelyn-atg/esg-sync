@@ -48,7 +48,7 @@ from pathlib import Path
 # Override defaults BEFORE importing Config so env vars take effect
 os.environ.setdefault('QWEN_MAX_MODEL', 'qwen3.8-max')
 os.environ.setdefault('ENABLE_THINKING', 'true')
-os.environ.setdefault('THINKING_MAX_TOKENS', '16000')
+os.environ.setdefault('THINKING_MAX_TOKENS', '16384')
 os.environ.setdefault('QUANTITATIVE_RESULT_DIR', 'quantitative_results_qwen38')
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

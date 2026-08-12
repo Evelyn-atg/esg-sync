@@ -33,7 +33,7 @@ class LLMVariableMatcher:
 
     def __init__(self):
         self.api_key = Config.QWEN_MAX_API_KEY
-        self.base_url = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+        self.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -173,7 +173,6 @@ class LLMVariableMatcher:
         params = {
             "max_tokens": 8000,   # 大KPI表(30行×多年≈90条记录)输出远超2000，会被截断丢批
             "temperature": 0.1,
-            "result_format": "message",
         }
 
         thinking_enabled = getattr(Config, 'ENABLE_THINKING', False)
@@ -190,13 +189,11 @@ class LLMVariableMatcher:
 
         payload = {
             "model": Config.QWEN_MAX_MODEL,
-            "input": {
-                "messages": [
-                    {"role": "user", "content": prompt}
-                ]
-            },
-            "parameters": params,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
         }
+        payload.update(params)
 
         import time
         max_retries = 3
@@ -217,7 +214,7 @@ class LLMVariableMatcher:
                 usage = result.get("usage", {})
 
                 # Extract text from response
-                choices = result.get("output", {}).get("choices", [])
+                choices = result.get("choices", [])
                 if choices:
                     message = choices[0].get("message", {})
                     # When thinking is enabled, the response may contain
