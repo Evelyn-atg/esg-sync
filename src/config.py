@@ -19,8 +19,15 @@ class Config:
     # Enable deep thinking for complex indicator transformations.
     # Set ENABLE_THINKING=true and QWEN_MAX_MODEL=qwen3.8-max in .env or shell.
     ENABLE_THINKING = os.getenv('ENABLE_THINKING', 'false').lower() in ('1', 'true', 'yes')
-    # Max tokens for thinking + output combined (thinking consumes tokens too).
-    THINKING_MAX_TOKENS = int(os.getenv('THINKING_MAX_TOKENS', '16000'))
+    # Thinking budget: max tokens for reasoning_content (the CoT trace).
+    # When the budget is reached, the model stops thinking and outputs the answer.
+    # Recommended: 8192+ for complex tasks (ESG indicator matching with 90+ records).
+    THINKING_BUDGET = int(os.getenv('THINKING_BUDGET', '8192'))
+    # Max tokens for TOTAL output (reasoning_content + final answer combined).
+    # Per DashScope docs: max_tokens = thinking_budget + answer_budget.
+    # Qwen3.8-max supports up to 131K output in thinking mode; 262K reasoning.
+    # 16384 = 8192 (thinking) + 8192 (JSON answer, enough for 90+ records).
+    THINKING_MAX_TOKENS = int(os.getenv('THINKING_MAX_TOKENS', '16384'))
     # VL model name (qwen3.8-max is multimodal; legacy default: qwen-vl-plus).
     QWEN_VL_MODEL = os.getenv('QWEN_VL_MODEL', 'qwen-vl-plus')
 

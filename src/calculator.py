@@ -132,13 +132,18 @@ class Calculator:
         # 与 llm_matching 统一用 QWEN_MAX_MODEL（默认 qwen3.7-max），2026-08-03 起不再硬编码 qwen-max
         # 2026-08-13: add enable_thinking support for qwen3.8-max reasoning mode
         params = {
-            "max_tokens": Config.THINKING_MAX_TOKENS if Config.ENABLE_THINKING else 4000,
+            "max_tokens": 4000,
             "temperature": 0.1,
             "result_format": "message",
         }
         if Config.ENABLE_THINKING:
+            # Calculation is simpler than matching — use a smaller thinking budget.
+            # 4096 reasoning + 4096 answer = 8192 total is plenty for arithmetic.
+            calc_thinking_budget = min(getattr(Config, 'THINKING_BUDGET', 8192), 4096)
             params["enable_thinking"] = True
-            logger.info(f"[Calculator] Thinking enabled (model={Config.QWEN_MAX_MODEL}, max_tokens={params['max_tokens']})")
+            params["thinking_budget"] = calc_thinking_budget
+            params["max_tokens"] = calc_thinking_budget + 4096
+            logger.info(f"[Calculator] Thinking enabled (model={Config.QWEN_MAX_MODEL}, thinking_budget={calc_thinking_budget}, max_tokens={params['max_tokens']})")
 
         payload = {
             "model": Config.QWEN_MAX_MODEL,

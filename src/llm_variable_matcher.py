@@ -178,10 +178,15 @@ class LLMVariableMatcher:
 
         thinking_enabled = getattr(Config, 'ENABLE_THINKING', False)
         if thinking_enabled:
-            thinking_max = getattr(Config, 'THINKING_MAX_TOKENS', 16000)
+            thinking_budget = getattr(Config, 'THINKING_BUDGET', 8192)
+            thinking_max = getattr(Config, 'THINKING_MAX_TOKENS', 16384)
+            # Per DashScope: max_tokens includes BOTH reasoning_content and content.
+            # thinking_budget caps the reasoning; max_tokens caps the total.
+            # Formula: max_tokens = thinking_budget + answer_budget.
             params["max_tokens"] = thinking_max
             params["enable_thinking"] = True
-            logger.info(f"[thinking] enable_thinking=True, max_tokens={thinking_max}, model={Config.QWEN_MAX_MODEL}")
+            params["thinking_budget"] = thinking_budget
+            logger.info(f"[thinking] enable_thinking=True, thinking_budget={thinking_budget}, max_tokens={thinking_max}, model={Config.QWEN_MAX_MODEL}")
 
         payload = {
             "model": Config.QWEN_MAX_MODEL,
