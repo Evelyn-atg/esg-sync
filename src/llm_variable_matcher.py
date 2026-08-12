@@ -157,10 +157,31 @@ class LLMVariableMatcher:
         return prompt
 
     def _call_llm(self, prompt: str) -> tuple:
-        """Call the Qwen text LLM API with retry. Returns (content_str, usage_dict)."""
+        """Call the Qwen text LLM API with retry. Returns (content_str, usage_dict).
+
+        When Config.ENABLE_THINKING is True, adds enable_thinking to the API
+        parameters so the model reasons through complex indicator transformations
+        (e.g. unit conversions, ratio derivations, multi-step lookups).
+        The reasoning_content in the response is logged but not returned;
+        only the final answer (content) is used for parsing.
+        """
         if not self.api_key:
             logger.error("QWEN_MAX_API_KEY not set")
             return "", {}
+
+        # Build parameters — extend when thinking mode is on
+        params = {
+            "max_tokens": 8000,   # 大KPI表(30行×多年≈90条记录)输出远超2000，会被截断丢批
+            "temperature": 0.1,
+            "result_format": "message",
+        }
+
+        thinking_enabled = getattr(Config, 'ENABLE_THINKING', False)
+        if thinking_enabled:
+            thinking_max = getattr(Config, 'THINKING_MAX_TOKENS', 16000)
+            params["max_tokens"] = thinking_max
+            params["enable_thinking"] = True
+            logger.info(f"[thinking] enable_thinking=True, max_tokens={thinking_max}, model={Config.QWEN_MAX_MODEL}")
 
         payload = {
             "model": Config.QWEN_MAX_MODEL,
@@ -169,24 +190,21 @@ class LLMVariableMatcher:
                     {"role": "user", "content": prompt}
                 ]
             },
-            "parameters": {
-                "max_tokens": 8000,   # 大KPI表(30行×多年≈90条记录)输出远超2000，会被截断丢批
-                "temperature": 0.1,
-                "result_format": "message",
-            }
+            "parameters": params,
         }
 
         import time
         max_retries = 3
         for attempt in range(max_retries):
             try:
+                # When thinking is on, generation takes much longer (CoT reasoning).
+                # Increase read timeout from 300s to 600s to accommodate deep thinking.
+                read_timeout = 600 if thinking_enabled else 300
                 response = requests.post(
                     self.base_url,
                     headers=self.headers,
                     json=payload,
-                    # 非流式：服务器整段生成完才回；max_tokens=8000下大表生成可能>120s。
-                    # 设(连接10s, 读300s)：连接快失败、生成慢容忍。防的是连接卡死，不是慢生成。
-                    timeout=(10, 300),
+                    timeout=(10, read_timeout),
                 )
                 response.raise_for_status()
                 result = response.json()
@@ -197,6 +215,13 @@ class LLMVariableMatcher:
                 choices = result.get("output", {}).get("choices", [])
                 if choices:
                     message = choices[0].get("message", {})
+                    # When thinking is enabled, the response may contain
+                    # reasoning_content (the CoT trace) separate from content.
+                    # Log reasoning_content for debugging but only return content.
+                    reasoning = message.get("reasoning_content", "")
+                    if reasoning and thinking_enabled:
+                        reasoning_preview = reasoning[:200] if isinstance(reasoning, str) else str(reasoning)[:200]
+                        logger.info(f"[thinking] reasoning preview: {reasoning_preview}...")
                     content = message.get("content", "")
                     if isinstance(content, str):
                         return content, usage
@@ -402,10 +427,18 @@ class LLMVariableMatcher:
                     logger.info(f"[{pdf_name}] Batch {batch_num}/{total_batches}: no matches")
 
         # Print cost summary
+        # qwen3.8-max: input ¥12.00/1M tokens, output ¥36.00/1M tokens
         # qwen3.7-max: input ¥2.00/1M tokens, output ¥8.00/1M tokens
         # qwen-max:    input ¥2.00/1M tokens, output ¥6.00/1M tokens
-        input_cost = total_input_tokens / 1_000_000 * 2.00
-        output_cost = total_output_tokens / 1_000_000 * (8.00 if "3.7" in Config.QWEN_MAX_MODEL else 6.00)
+        model_name = Config.QWEN_MAX_MODEL
+        if "3.8" in model_name:
+            input_price, output_price = 12.00, 36.00
+        elif "3.7" in model_name:
+            input_price, output_price = 2.00, 8.00
+        else:
+            input_price, output_price = 2.00, 6.00
+        input_cost = total_input_tokens / 1_000_000 * input_price
+        output_cost = total_output_tokens / 1_000_000 * output_price
         total_cost = input_cost + output_cost
         logger.info(
             f"[{pdf_name}] Token usage: input={total_input_tokens}, output={total_output_tokens}, "
