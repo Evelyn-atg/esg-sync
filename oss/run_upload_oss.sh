@@ -62,16 +62,22 @@ else
     echo "[INFO] python-dotenv already installed."
 fi
 
-# --- 检查 .env ---
+# --- 检查/生成 .env ---
 if [ ! -f "$SCRIPT_DIR/.env" ]; then
-    echo "[ERROR] .env file not found in $SCRIPT_DIR"
-    echo "        Please create it with OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET,"
-    echo "        OSS_ENDPOINT, OSS_BUCKET_NAME"
-    exit 1
+    if [ -f "$SCRIPT_DIR/.env.b64" ]; then
+        echo "[INFO] .env not found, decoding from .env.b64 ..."
+        base64 -d "$SCRIPT_DIR/.env.b64" > "$SCRIPT_DIR/.env"
+        echo "[INFO] .env created from .env.b64"
+    else
+        echo "[ERROR] .env file not found in $SCRIPT_DIR"
+        echo "        Please create it with OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET,"
+        echo "        OSS_ENDPOINT, OSS_BUCKET_NAME"
+        exit 1
+    fi
 fi
 
 echo ""
-echo "[INFO] .env found. Starting upload..."
+echo "[INFO] .env ready. Starting upload..."
 echo ""
 
 # --- 运行 ---
