@@ -130,6 +130,16 @@ class Calculator:
 
         # Prepare the payload - using the correct format for DashScope text generation API
         # 与 llm_matching 统一用 QWEN_MAX_MODEL（默认 qwen3.7-max），2026-08-03 起不再硬编码 qwen-max
+        # 2026-08-13: add enable_thinking support for qwen3.8-max reasoning mode
+        params = {
+            "max_tokens": Config.THINKING_MAX_TOKENS if Config.ENABLE_THINKING else 4000,
+            "temperature": 0.1,
+            "result_format": "message",
+        }
+        if Config.ENABLE_THINKING:
+            params["enable_thinking"] = True
+            logger.info(f"[Calculator] Thinking enabled (model={Config.QWEN_MAX_MODEL}, max_tokens={params['max_tokens']})")
+
         payload = {
             "model": Config.QWEN_MAX_MODEL,
             "input": {
@@ -140,15 +150,30 @@ class Calculator:
                     }
                 ]
             },
-            "parameters": {
-                "max_tokens": 2000,
-                "temperature": 0.1
-            }
+            "parameters": params,
         }
 
         try:
-            response = requests.post(self.base_url, headers=self.headers, json=payload)
-            response.raise_for_status()
+            import time
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    response = requests.post(
+                        self.base_url,
+                        headers=self.headers,
+                        json=payload,
+                        timeout=(10, 600),  # connect 10s, read 600s (thinking mode is slow)
+                    )
+                    response.raise_for_status()
+                    break
+                except requests.exceptions.RequestException as e:
+                    if attempt < max_retries - 1:
+                        wait = 2 ** attempt
+                        logger.warning(f"[Calculator] API attempt {attempt+1} failed: {e}, retrying in {wait}s...")
+                        time.sleep(wait)
+                    else:
+                        logger.error(f"[Calculator] API failed after {max_retries} attempts: {e}")
+                        raise
 
             result = response.json()
 
@@ -160,6 +185,12 @@ class Calculator:
                 choices = result['output']['choices']
                 if len(choices) > 0 and 'message' in choices[0]:
                     message = choices[0]['message']
+
+                    # Log reasoning_content if present (thinking mode)
+                    reasoning = message.get('reasoning_content', '')
+                    if reasoning:
+                        logger.debug(f"[Calculator] Reasoning (truncated): {reasoning[:200]}...")
+
                     if 'content' in message:
                         content = message['content']
                         # Handle both string and list content formats
@@ -173,62 +204,62 @@ class Calculator:
                                     text_parts.append(item['text'])
                             text_content = ' '.join(text_parts)
 
-            # If content still not found, try alternative structures
-            if not text_content:
-                if 'output' in result and 'text' in result['output']:
-                    text_content = result['output']['text']
-                elif 'result' in result:
-                    text_content = result['result']
-                else:
-                    # Log the full response for debugging
-                    logger.debug(f"Unexpected response format: {result}")
-                    text_content = str(result)
-
-            # Attempt to extract JSON from the response
-            # Look for JSON within triple backticks if present
-            import re
-            # First check for code blocks
-            code_block_match = re.search(r'```(?:json)?\s*({.*?})\s*```', text_content, re.DOTALL)
-            if code_block_match:
-                json_text = code_block_match.group(1)
-            else:
-                # Find JSON between first { and last }
-                brace_start = text_content.find('{')
-                if brace_start != -1:
-                    brace_count = 0
-                    for i, char in enumerate(text_content[brace_start:], brace_start):
-                        if char == '{':
-                            brace_count += 1
-                        elif char == '}':
-                            brace_count -= 1
-                            if brace_count == 0:
-                                json_text = text_content[brace_start:i+1]
-                                break
+                # If content still not found, try alternative structures
+                if not text_content:
+                    if 'output' in result and 'text' in result['output']:
+                        text_content = result['output']['text']
+                    elif 'result' in result:
+                        text_content = result['result']
                     else:
-                        json_text = ""  # No matching braces found
+                        # Log the full response for debugging
+                        logger.debug(f"Unexpected response format: {result}")
+                        text_content = str(result)
+
+                # Attempt to extract JSON from the response
+                # Look for JSON within triple backticks if present
+                import re
+                # First check for code blocks
+                code_block_match = re.search(r'```(?:json)?\s*({.*?})\s*```', text_content, re.DOTALL)
+                if code_block_match:
+                    json_text = code_block_match.group(1)
                 else:
-                    json_text = ""
+                    # Find JSON between first { and last }
+                    brace_start = text_content.find('{')
+                    if brace_start != -1:
+                        brace_count = 0
+                        for i, char in enumerate(text_content[brace_start:], brace_start):
+                            if char == '{':
+                                brace_count += 1
+                            elif char == '}':
+                                brace_count -= 1
+                                if brace_count == 0:
+                                    json_text = text_content[brace_start:i+1]
+                                    break
+                        else:
+                            json_text = ""  # No matching braces found
+                    else:
+                        json_text = ""
 
-            # Try to parse the extracted JSON
-            if json_text:
-                try:
-                    parsed_result = json.loads(json_text)
-                    return parsed_result
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Failed to parse extracted JSON: {e}")
-                    logger.debug(f"Extracted text: {json_text[:500]}...")
+                # Try to parse the extracted JSON
+                if json_text:
+                    try:
+                        parsed_result = json.loads(json_text)
+                        return parsed_result
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Failed to parse extracted JSON: {e}")
+                        logger.debug(f"Extracted text: {json_text[:500]}...")
 
-            # If JSON parsing failed, return default structure with raw response
-            logger.info("Could not parse JSON from API response, returning default structure")
-            return {
-                "calculated_variables": {},
-                "metadata": {
-                    "input_variables": list(available_vars.keys()) if isinstance(available_vars, dict) else [],
-                    "used_variables": [],
-                    "missing_info": ["Could not parse response from model - no valid JSON found"],
-                    "raw_response": text_content[:1000] if text_content else "No content received"
+                # If JSON parsing failed, return default structure with raw response
+                logger.info("Could not parse JSON from API response, returning default structure")
+                return {
+                    "calculated_variables": {},
+                    "metadata": {
+                        "input_variables": list(available_vars.keys()) if isinstance(available_vars, dict) else [],
+                        "used_variables": [],
+                        "missing_info": ["Could not parse response from model - no valid JSON found"],
+                        "raw_response": text_content[:1000] if text_content else "No content received"
+                    }
                 }
-            }
 
         except requests.exceptions.HTTPError as e:
             logger.error(f"HTTP Error calling Qwen-Max API: {str(e)}")
