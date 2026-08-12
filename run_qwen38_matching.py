@@ -2,18 +2,34 @@
 """
 Run LLM variable matching for all GT PDFs using Qwen3.8-Max with reasoning.
 
-Auto-discovers all PDFs from numeric_extracts/ directory.
+Auto-discovers all PDFs from numeric_extracts/ (or NUMERIC_EXTRACT_DIR env var).
 Outputs to quantitative_results_qwen38/ (preserves old quantitative_results_Qwen/).
+
+Directory separation for qwen3.7 vs qwen3.8 comparison:
+  OLD (qwen3.7):                         NEW (qwen3.8 + thinking):
+  numeric_extracts/                      numeric_extracts_qwen38/       (if re-extracted)
+  quantitative_results_Qwen/             quantitative_results_qwen38/   (always new)
+  calculation_results/                   calculation_results_qwen38/    (always new)
+
+Env vars (all have sensible defaults):
+  QWEN_MAX_MODEL          default: qwen3.8-max
+  ENABLE_THINKING         default: true
+  THINKING_MAX_TOKENS     default: 16000
+  QUANTITATIVE_RESULT_DIR default: quantitative_results_qwen38
+  NUMERIC_EXTRACT_DIR     default: numeric_extracts (set to numeric_extracts_qwen38 after re-extraction)
 
 Usage:
   # Dry run (list PDFs, estimate cost)
   python run_qwen38_matching.py --dry-run
 
-  # Full run (all PDFs)
+  # Full run (all PDFs, reads from default numeric_extracts/)
   python run_qwen38_matching.py
 
   # Resume (skip already-processed PDFs)
   python run_qwen38_matching.py --resume
+
+  # Read from qwen38 extraction results (after --reextract)
+  python run_qwen38_matching.py --numeric-dir numeric_extracts_qwen38
 
   # Specific PDFs only
   python run_qwen38_matching.py --pdfs 2025041601082 2025042902036
@@ -75,6 +91,8 @@ def main():
                         help='Disable reasoning mode (use qwen3.8-max without enable_thinking)')
     parser.add_argument('--model', default=None,
                         help='Override model name (default: qwen3.8-max)')
+    parser.add_argument('--numeric-dir', default=None,
+                        help='Override numeric_extracts directory (default: from env or numeric_extracts)')
     args = parser.parse_args()
 
     # Apply overrides
@@ -85,6 +103,9 @@ def main():
     if args.model:
         os.environ['QWEN_MAX_MODEL'] = args.model
         Config.QWEN_MAX_MODEL = args.model
+    if args.numeric_dir:
+        os.environ['NUMERIC_EXTRACT_DIR'] = args.numeric_dir
+        Config.NUMERIC_EXTRACT_DIR = Path(args.numeric_dir)
 
     # Print configuration
     print("=" * 70)
