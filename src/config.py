@@ -15,6 +15,15 @@ class Config:
     QWEN_MAX_MODEL = os.getenv('QWEN_MAX_MODEL', 'qwen3.7-max')
     DATALAB_API_KEY = os.getenv('DATALAB_API_KEY')
 
+    # === Qwen3.8 Reasoning Mode (optional, off by default) ===
+    # Enable deep thinking for complex indicator transformations.
+    # Set ENABLE_THINKING=true and QWEN_MAX_MODEL=qwen3.8-max in .env or shell.
+    ENABLE_THINKING = os.getenv('ENABLE_THINKING', 'false').lower() in ('1', 'true', 'yes')
+    # Max tokens for thinking + output combined (thinking consumes tokens too).
+    THINKING_MAX_TOKENS = int(os.getenv('THINKING_MAX_TOKENS', '16000'))
+    # VL model name (qwen3.8-max is multimodal; legacy default: qwen-vl-plus).
+    QWEN_VL_MODEL = os.getenv('QWEN_VL_MODEL', 'qwen-vl-plus')
+
     # Directory configurations
     PDF_INPUT_DIR = Path(os.getenv('PDF_INPUT_DIR', './HKEX ESG Reports'))
     TEXT_OUTPUT_DIR = Path(os.getenv('TEXT_OUTPUT_DIR', './extracted_text'))
