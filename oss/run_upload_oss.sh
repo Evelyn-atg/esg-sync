@@ -23,6 +23,11 @@ echo "  Script dir: $SCRIPT_DIR"
 echo "  Time: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "============================================================"
 
+# --- 集群环境：尝试加载 anaconda module（本地无 module 命令时自动跳过）---
+if command -v module &>/dev/null 2>&1; then
+    module load apps/anaconda3/2021.05 2>/dev/null || true
+fi
+
 # --- 选 Python3 ---
 PYTHON=""
 for candidate in python3 /opt/anaconda3/bin/python3 ~/anaconda3/bin/python3 ~/miniconda3/bin/python3 /usr/bin/python3; do
